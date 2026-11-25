@@ -1269,8 +1269,8 @@
       }
     }, 250);
 
-    // Polling live ogni 2.5s
-    setInterval(pullState, 2500);
+    // Polling live ogni 1s
+    setInterval(pullState, 1000);
 
     function closeAndDeclareVerdict() {
       const v = gameState.votes || { red: 0, blue: 0, green: 0, yellow: 0 };
@@ -1288,7 +1288,7 @@
     }
 
     // --- EVENT LISTENERS ---
-    document.getElementById('joinBtn').addEventListener('click', () => {
+    document.getElementById('joinBtn').addEventListener('click', async () => {
       const b = parseInt(document.getElementById('braceletInput').value, 10);
       const n = document.getElementById('nickInput').value.trim();
       if (!b || b < 1 || b > 100) {
@@ -1301,6 +1301,7 @@
       }
       player = { bracelet: b, nick: n, votes: {}, hasSpun: false, wonPrize: null, redeemed: false };
       localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+      await pullState();
       renderAll();
     });
 
@@ -1482,4 +1483,4 @@
     renderAll();
   </script>
 </body>
-  </html>
+</html>
