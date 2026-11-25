@@ -124,6 +124,17 @@
       flex-shrink: 0;
     }
 
+    .btn-mini {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
     @media (max-width: 390px) {
       .badge-ep {
         display: none;
@@ -272,6 +283,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
       margin-bottom: 14px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
@@ -281,6 +293,16 @@
       font-size: 13px;
       font-weight: 800;
       color: #f9a8d4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .player-header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .round-pill {
@@ -293,7 +315,6 @@
       color: #ddd6fe;
     }
 
-    /* Radar Attesa */
     .radar-box {
       text-align: center;
       padding: 26px 10px;
@@ -320,7 +341,6 @@
       100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
     }
 
-    /* Votazione */
     .timer-bar-wrap {
       background: rgba(255, 255, 255, 0.08);
       height: 10px;
@@ -392,7 +412,6 @@
       line-height: 1.15;
     }
 
-    /* Verdetto */
     .verdict-card {
       text-align: center;
       padding: 28px 18px;
@@ -418,7 +437,6 @@
       text-transform: uppercase;
     }
 
-    /* Ruota */
     .wheel-wrap {
       position: relative;
       width: 270px;
@@ -449,7 +467,6 @@
       transition: transform 4.2s cubic-bezier(0.15, 0.85, 0.2, 1);
     }
 
-    /* Pass Vincitore */
     .winner-pass {
       border: 2px solid #f472b6;
       background: linear-gradient(160deg, #1f1135, #0e0e18);
@@ -484,7 +501,6 @@
       border: 1px dashed rgba(234, 179, 8, 0.55);
     }
 
-    /* Master Console */
     .master-section {
       margin-top: 16px;
       padding-top: 16px;
@@ -604,7 +620,6 @@
 
   <main class="container">
 
-    <!-- VIEW 1: CHECK-IN GIOCATORE -->
     <section id="checkinView" class="card">
       <div class="logo-wrap">
         <canvas id="heroLogo" width="240" height="92"></canvas>
@@ -628,21 +643,21 @@
       <button id="joinBtn" class="btn-primary">ENTRA NEL GAME</button>
     </section>
 
-    <!-- VIEW 2: AREA GIOCATORE -->
     <section id="playerView" class="card hidden">
       <div class="player-header">
         <div id="playerIdentity" class="player-tag">Bracciale #-- • Giocatore</div>
-        <div id="playerRoundPill" class="round-pill">ROUND 1 / 4</div>
+        <div class="player-header-right">
+          <div id="playerRoundPill" class="round-pill">ROUND 1 / 4</div>
+          <button id="leavePlayerBtn" class="btn-mini">Cambia</button>
+        </div>
       </div>
 
-      <!-- Stato A: Attesa -->
       <div id="stateWaiting" class="radar-box">
         <div class="radar">🎧</div>
         <h2 style="margin:0 0 8px; font-size:20px;">In attesa del Master</h2>
         <p class="subtitle" style="margin:0;">Resta in pista! Appena il Master apre il voto, i 4 colori si accenderanno qui sul tuo schermo.</p>
       </div>
 
-      <!-- Stato B: Votazione aperta -->
       <div id="stateVoting" class="hidden">
         <div style="text-align:center; font-size:12px; font-weight:800; color:#f9a8d4; letter-spacing:0.08em;">SCEGLI IL PROSSIMO SOUND</div>
         <div class="timer-bar-wrap"><div id="playerTimerBar" class="timer-bar"></div></div>
@@ -670,7 +685,6 @@
         <p id="voteConfirmMsg" class="subtitle" style="margin-top:14px; margin-bottom:0;">Tocca un colore per inviare il tuo voto.</p>
       </div>
 
-      <!-- Stato C: Verdetto -->
       <div id="stateVerdict" class="hidden">
         <div id="verdictBox" class="verdict-card" style="background:linear-gradient(145deg,#dc2626,#7f1d1d);">
           <div class="verdict-badge">VERDETTO DEL MASTER</div>
@@ -680,7 +694,6 @@
         </div>
       </div>
 
-      <!-- Stato D: Ruota Finale -->
       <div id="stateWheel" class="hidden" style="text-align:center;">
         <h2 style="margin:0 0 4px; font-size:21px;">LA RUOTA DEL MASTER</h2>
         <p class="subtitle" style="margin-bottom:8px;">Solo <strong>5 premi reali</strong> su 100 giocatori. Gira subito!</p>
@@ -693,14 +706,12 @@
           <button id="spinBtn" class="btn-primary">GIRA LA RUOTA</button>
         </div>
 
-        <!-- Esito Non Vincente -->
         <div id="wheelLoseArea" class="hidden" style="padding:18px 8px;">
           <div style="font-size:42px; margin-bottom:8px;">🔥</div>
           <h3 style="margin:0 0 8px;">Grazie per aver giocato!</h3>
           <p class="subtitle">I 5 premi speciali sono stati assegnati o questo giro era vuoto, ma la festa continua in pista con ICONIKA!</p>
         </div>
 
-        <!-- Pass Vincitore -->
         <div id="wheelWinArea" class="hidden winner-pass">
           <div class="logo-wrap"><canvas id="passLogo" width="160" height="58"></canvas></div>
           <div style="font-size:11px; font-weight:900; letter-spacing:0.12em; color:#f9a8d4;">PASS VINCITORE UFFICIALE</div>
@@ -713,7 +724,6 @@
       </div>
     </section>
 
-    <!-- VIEW 3: PIN MASTER -->
     <section id="masterPinView" class="card hidden">
       <h2 style="margin:0 0 6px; text-align:center;">Accesso Regia Master</h2>
       <p class="subtitle">Inserisci il PIN per controllare i 4 round, i verdetti e il QR Code.</p>
@@ -724,7 +734,6 @@
       </div>
     </section>
 
-    <!-- VIEW 4: CONSOLE REGIA MASTER -->
     <section id="masterView" class="card hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h2 style="margin:0; font-size:19px;">Regia Master</h2>
@@ -733,7 +742,6 @@
 
       <div id="masterStatusBanner" class="status-banner">Stato: In attesa • Round 1</div>
 
-      <!-- Controllo Round -->
       <div class="master-section" style="border-top:none; padding-top:0; margin-top:0;">
         <h3>1. Gestione Round & Voto</h3>
         <div class="round-selector" id="roundSelector">
@@ -753,7 +761,6 @@
         </div>
       </div>
 
-      <!-- Barre Live -->
       <div class="master-section">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <h3 style="margin:0;">2. Voti in Diretta</h3>
@@ -778,25 +785,22 @@
         </div>
       </div>
 
-      <!-- Ruota e 5 Premi -->
       <div class="master-section">
         <h3>3. Ruota Finale (Max 5 Premi)</h3>
         <button id="unlockWheelBtn" class="btn-primary" style="margin-bottom:12px;">Sblocca Ruota sui Telefoni</button>
         <div id="prizesList"></div>
       </div>
 
-      <!-- Sincro Cloud -->
       <div class="master-section">
         <h3>4. Sincronizzazione Telefoni Live</h3>
-        <p style="font-size:12px; color:var(--muted); margin:0 0 8px;">Incolla l'URL del tuo Firebase Realtime Database per sincronizzare tutti i 100 telefoni in tempo reale.</p>
-        <input id="firebaseUrlInput" type="text" placeholder="https://tuo-progetto-default-rtdb.europe-west1.firebasedatabase.app" />
+        <p style="font-size:12px; color:var(--muted); margin:0 0 8px;">Collegamento automatico attivo sul tuo Firebase Realtime Database.</p>
+        <input id="firebaseUrlInput" type="text" placeholder="https://iconika-100s-default-rtdb.europe-west1.firebasedatabase.app" />
         <div class="btn-row">
           <button id="connectDbBtn" class="btn-primary">Collega Live</button>
           <button id="resetAllBtn" class="btn-secondary" style="color:#fca5a5;">Reset Serata</button>
         </div>
       </div>
 
-      <!-- QR Code -->
       <div class="master-section">
         <h3>5. QR Code Ingresso (Primi 100)</h3>
         <div class="qr-box">
@@ -826,12 +830,14 @@
     ];
 
     const MASTER_PIN = '1000';
+    const DEFAULT_DB_URL = 'https://iconika-100s-default-rtdb.europe-west1.firebasedatabase.app';
+
     const STORAGE_KEY = 'iconika_100s_state_v3';
     const PLAYER_KEY = 'iconika_100s_player_v3';
     const DB_KEY = 'iconika_100s_db_url';
 
     let gameState = {
-      phase: 'waiting', // waiting | voting | verdict | wheel
+      phase: 'waiting',
       round: 1,
       endTime: 0,
       duration: 45,
@@ -843,7 +849,7 @@
     };
 
     let player = JSON.parse(localStorage.getItem(PLAYER_KEY) || 'null');
-    let dbUrl = new URLSearchParams(window.location.search).get('db') || localStorage.getItem(DB_KEY) || '';
+    let dbUrl = new URLSearchParams(window.location.search).get('db') || localStorage.getItem(DB_KEY) || DEFAULT_DB_URL;
     if (dbUrl) {
       dbUrl = dbUrl.replace(/\/+$/, '');
       localStorage.setItem(DB_KEY, dbUrl);
@@ -853,7 +859,6 @@
     let isSpinning = false;
     let wheelAngle = 0;
 
-    // --- DISEGNO LOGO ICONIKA SU CANVAS (IDEMPOTENTE) ---
     function drawIconikaLogo(canvas) {
       if (!canvas) return;
       const baseW = Number(canvas.dataset.baseW || canvas.getAttribute('width') || 200);
@@ -877,7 +882,6 @@
       const cx = w / 2;
       const cy = h * 0.56;
 
-      // Onda viola/magenta sullo sfondo
       ctx.save();
       for (let i = 0; i < 4; i++) {
         ctx.beginPath();
@@ -896,7 +900,6 @@
       }
       ctx.restore();
 
-      // Micro scritta superiore: ENJOY YOUR NIGHT
       const subSize = Math.max(6, Math.round(w * 0.036));
       ctx.font = `700 ${subSize}px sans-serif`;
       ctx.fillStyle = '#e2e8f0';
@@ -907,7 +910,6 @@
       const mainSize = Math.max(16, Math.round(w * 0.155));
       ctx.font = `900 ${mainSize}px "Arial Black", Impact, sans-serif`;
 
-      // Eco fucsia superiore tagliato
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, cy - mainSize * 0.88, w, mainSize * 0.34);
@@ -916,7 +918,6 @@
       ctx.fillText('ICONIKA', cx, cy - mainSize * 0.24);
       ctx.restore();
 
-      // Eco fucsia inferiore tagliato
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, cy + mainSize * 0.34, w, mainSize * 0.36);
@@ -925,7 +926,6 @@
       ctx.fillText('ICONIKA', cx, cy + mainSize * 0.24);
       ctx.restore();
 
-      // Scritta centrale bianca nitida
       ctx.fillStyle = '#ffffff';
       ctx.shadowColor = 'rgba(236, 72, 153, 0.45)';
       ctx.shadowBlur = 8;
@@ -933,7 +933,6 @@
       ctx.shadowBlur = 0;
     }
 
-    // --- GENERATORE QR CODE PURO JS ---
     function drawQRCode(canvas, text) {
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
@@ -963,7 +962,6 @@
       return url.toString();
     }
 
-    // --- SINCRONIZZAZIONE STATO (LOCAL + FIREBASE REST) ---
     async function pushState() {
       gameState.updatedAt = Date.now();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
@@ -985,7 +983,7 @@
           const res = await fetch(`${dbUrl}/iconika100s.json?t=${Date.now()}`);
           if (res.ok) {
             const remote = await res.json();
-            if (remote && remote.updatedAt && remote.updatedAt !== gameState.updatedAt) {
+            if (remote && remote.phase) {
               gameState = Object.assign({}, gameState, remote);
               localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
               renderAll();
@@ -1001,7 +999,6 @@
       }
     }
 
-    // --- RUOTA DELLA FORTUNA ---
     function drawWheel() {
       const canvas = document.getElementById('wheelCanvas');
       if (!canvas) return;
@@ -1048,7 +1045,6 @@
         ctx.restore();
       });
 
-      // Centro
       ctx.beginPath();
       ctx.arc(cx, cy, 42, 0, Math.PI * 2);
       ctx.fillStyle = '#09090f';
@@ -1111,7 +1107,6 @@
       }, 4300);
     }
 
-    // --- RENDER INTERFACCIA ---
     function renderAll() {
       const livePill = document.getElementById('liveIndicator');
       const liveText = document.getElementById('liveText');
@@ -1237,7 +1232,6 @@
       drawQRCode(document.getElementById('qrCanvas'), shareUrl);
     }
 
-    // --- LOOP TIMER CONTINUO (250ms) ---
     setInterval(() => {
       const clockEl = document.getElementById('liveClock');
       if (clockEl) {
@@ -1269,7 +1263,6 @@
       }
     }, 250);
 
-    // Polling live ogni 1s
     setInterval(pullState, 1000);
 
     function closeAndDeclareVerdict() {
@@ -1287,7 +1280,6 @@
       pushState();
     }
 
-    // --- EVENT LISTENERS ---
     document.getElementById('joinBtn').addEventListener('click', async () => {
       const b = parseInt(document.getElementById('braceletInput').value, 10);
       const n = document.getElementById('nickInput').value.trim();
@@ -1301,6 +1293,13 @@
       }
       player = { bracelet: b, nick: n, votes: {}, hasSpun: false, wonPrize: null, redeemed: false };
       localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+      await pullState();
+      renderAll();
+    });
+
+    document.getElementById('leavePlayerBtn').addEventListener('click', async () => {
+      localStorage.removeItem(PLAYER_KEY);
+      player = null;
       await pullState();
       renderAll();
     });
@@ -1333,7 +1332,6 @@
       }
     });
 
-    // Master navigation
     document.getElementById('toggleMasterBtn').addEventListener('click', () => {
       if (isMasterOpen) {
         isMasterOpen = false;
@@ -1409,11 +1407,10 @@
 
     document.getElementById('connectDbBtn').addEventListener('click', async () => {
       const val = document.getElementById('firebaseUrlInput').value.trim().replace(/\/+$/, '');
-      dbUrl = val;
-      if (dbUrl) localStorage.setItem(DB_KEY, dbUrl);
-      else localStorage.removeItem(DB_KEY);
+      dbUrl = val || DEFAULT_DB_URL;
+      localStorage.setItem(DB_KEY, dbUrl);
       await pushState();
-      alert(dbUrl ? 'Database collegato! Il QR Code ora include la sincronizzazione live.' : 'Modalità locale ripristinata.');
+      alert('Database collegato! Il QR Code ora include la sincronizzazione live.');
     });
 
     document.getElementById('resetAllBtn').addEventListener('click', async () => {
@@ -1474,7 +1471,6 @@
       link.click();
     });
 
-    // Init
     drawIconikaLogo(document.getElementById('headerLogo'));
     drawIconikaLogo(document.getElementById('heroLogo'));
     drawIconikaLogo(document.getElementById('passLogo'));
