@@ -856,6 +856,7 @@
     }
 
     let isMasterOpen = false;
+    let isPinModalOpen = false;
     let isSpinning = false;
     let wheelAngle = 0;
 
@@ -1134,6 +1135,11 @@
         return;
       }
 
+      if (isPinModalOpen) {
+        masterPinView.classList.remove('hidden');
+        return;
+      }
+
       if (!player) {
         checkinView.classList.remove('hidden');
         return;
@@ -1335,20 +1341,25 @@
     document.getElementById('toggleMasterBtn').addEventListener('click', () => {
       if (isMasterOpen) {
         isMasterOpen = false;
+        isPinModalOpen = false;
         renderAll();
       } else {
-        document.getElementById('checkinView').classList.add('hidden');
-        document.getElementById('playerView').classList.add('hidden');
-        document.getElementById('masterPinView').classList.remove('hidden');
-        document.getElementById('pinInput').value = '';
-        document.getElementById('pinInput').focus();
+        isPinModalOpen = true;
+        renderAll();
+        const pinEl = document.getElementById('pinInput');
+        pinEl.value = '';
+        pinEl.focus();
       }
     });
 
-    document.getElementById('cancelPinBtn').addEventListener('click', renderAll);
+    document.getElementById('cancelPinBtn').addEventListener('click', () => {
+      isPinModalOpen = false;
+      renderAll();
+    });
 
     document.getElementById('confirmPinBtn').addEventListener('click', () => {
       if (document.getElementById('pinInput').value === MASTER_PIN) {
+        isPinModalOpen = false;
         isMasterOpen = true;
         renderAll();
       } else {
@@ -1358,6 +1369,7 @@
 
     document.getElementById('backToPlayerBtn').addEventListener('click', () => {
       isMasterOpen = false;
+      isPinModalOpen = false;
       renderAll();
     });
 
