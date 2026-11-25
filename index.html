@@ -279,6 +279,18 @@
       cursor: pointer;
     }
 
+    .btn-danger {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      background: rgba(239, 68, 68, 0.16);
+      color: #fecaca;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
     .player-header {
       display: flex;
       justify-content: space-between;
@@ -600,6 +612,33 @@
       color: #fbcfe8;
       margin-bottom: 12px;
     }
+
+    .ended-box {
+      text-align: center;
+      padding: 20px 10px 10px;
+    }
+
+    .ig-box {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(236, 72, 153, 0.28);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ig-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #f9a8d4;
+      font-weight: 800;
+      font-size: 14px;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -619,6 +658,38 @@
   </header>
 
   <main class="container">
+
+    <section id="endedView" class="card hidden">
+      <div class="logo-wrap">
+        <canvas id="endedLogo" width="220" height="84"></canvas>
+      </div>
+      <div class="ended-box">
+        <div style="font-size:38px; margin-bottom:10px;">✨</div>
+        <h2 style="margin:0 0 8px; font-size:22px;">Serata Conclusa</h2>
+        <p class="subtitle" style="margin:0;">THE 100's — EPISODIO ZERO è terminato. Grazie per aver giocato con ICONIKA!</p>
+
+        <div class="ig-box">
+          <p style="margin:0; font-size:13px; color:#e2e8f0; line-height:1.45;">
+            Per restare aggiornati sugli eventi ICONIKA segui la nostra pagina Instagram
+          </p>
+          <a class="ig-link" href="https://www.instagram.com/IconikaCatania/" target="_blank" rel="noopener noreferrer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="igGrad" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#f59e0b" />
+                  <stop offset="50%" stop-color="#ec4899" />
+                  <stop offset="100%" stop-color="#8b5cf6" />
+                </linearGradient>
+              </defs>
+              <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="url(#igGrad)" stroke-width="2.2" />
+              <circle cx="12" cy="12" r="4.2" stroke="url(#igGrad)" stroke-width="2.2" />
+              <circle cx="17.3" cy="6.7" r="1.3" fill="url(#igGrad)" />
+            </svg>
+            <span>IconikaCatania</span>
+          </a>
+        </div>
+      </div>
+    </section>
 
     <section id="checkinView" class="card">
       <div class="logo-wrap">
@@ -792,12 +863,11 @@
       </div>
 
       <div class="master-section">
-        <h3>4. Sincronizzazione Telefoni Live</h3>
-        <p style="font-size:12px; color:var(--muted); margin:0 0 8px;">Collegamento automatico attivo sul tuo Firebase Realtime Database.</p>
-        <input id="firebaseUrlInput" type="text" placeholder="https://iconika-100s-default-rtdb.europe-west1.firebasedatabase.app" />
+        <h3>4. Controllo Fine Serata</h3>
+        <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">Sincronizzazione live già attiva. Usa i pulsanti qui sotto a fine serata per azzerare o chiudere il gioco.</p>
         <div class="btn-row">
-          <button id="connectDbBtn" class="btn-primary">Collega Live</button>
           <button id="resetAllBtn" class="btn-secondary" style="color:#fca5a5;">Reset Serata</button>
+          <button id="closeGameBtn" class="btn-danger">Chiudi Serata</button>
         </div>
       </div>
 
@@ -958,7 +1028,11 @@
     }
 
     function getShareUrl() {
-      const url = new URL(window.location.href.split('?')[0]);
+      const cleanOrigin = window.location.origin && window.location.origin !== 'null'
+        ? window.location.origin
+        : 'https://dadox993.github.io';
+      const cleanPath = window.location.pathname || '/Iconika-100s/';
+      const url = new URL(cleanOrigin + cleanPath);
       if (dbUrl) url.searchParams.set('db', dbUrl);
       return url.toString();
     }
@@ -1119,11 +1193,13 @@
         liveText.textContent = 'LOCALE';
       }
 
+      const endedView = document.getElementById('endedView');
       const checkinView = document.getElementById('checkinView');
       const playerView = document.getElementById('playerView');
       const masterPinView = document.getElementById('masterPinView');
       const masterView = document.getElementById('masterView');
 
+      endedView.classList.add('hidden');
       checkinView.classList.add('hidden');
       playerView.classList.add('hidden');
       masterPinView.classList.add('hidden');
@@ -1137,6 +1213,11 @@
 
       if (isPinModalOpen) {
         masterPinView.classList.remove('hidden');
+        return;
+      }
+
+      if (gameState.phase === 'ended') {
+        endedView.classList.remove('hidden');
         return;
       }
 
@@ -1232,7 +1313,6 @@
         pList.appendChild(row);
       });
 
-      document.getElementById('firebaseUrlInput').value = dbUrl;
       const shareUrl = getShareUrl();
       document.getElementById('qrUrlLabel').textContent = shareUrl;
       drawQRCode(document.getElementById('qrCanvas'), shareUrl);
@@ -1263,7 +1343,8 @@
         const labels = {
           waiting: `In attesa • Round ${gameState.round}`,
           verdict: `Verdetto Round ${gameState.round}: ${GENRES[gameState.verdictColor]?.genre || ''}`,
-          wheel: 'Ruota Finale attiva sui telefoni'
+          wheel: 'Ruota Finale attiva sui telefoni',
+          ended: 'Serata chiusa per i giocatori'
         };
         banner.textContent = `Stato: ${labels[gameState.phase] || ''}`;
       }
@@ -1417,14 +1498,6 @@
       pushState();
     });
 
-    document.getElementById('connectDbBtn').addEventListener('click', async () => {
-      const val = document.getElementById('firebaseUrlInput').value.trim().replace(/\/+$/, '');
-      dbUrl = val || DEFAULT_DB_URL;
-      localStorage.setItem(DB_KEY, dbUrl);
-      await pushState();
-      alert('Database collegato! Il QR Code ora include la sincronizzazione live.');
-    });
-
     document.getElementById('resetAllBtn').addEventListener('click', async () => {
       if (!confirm('Vuoi resettare tutti i round, i voti e i 5 premi della serata?')) return;
       gameState = {
@@ -1442,6 +1515,16 @@
       player = null;
       await pushState();
       alert('Serata resettata con successo.');
+    });
+
+    document.getElementById('closeGameBtn').addEventListener('click', async () => {
+      if (!confirm('Vuoi chiudere definitivamente il gioco per questa serata?')) return;
+      gameState.phase = 'ended';
+      await pushState();
+      isMasterOpen = false;
+      isPinModalOpen = false;
+      renderAll();
+      try { window.close(); } catch (e) {}
     });
 
     document.getElementById('downloadQrBtn').addEventListener('click', () => {
@@ -1485,6 +1568,7 @@
 
     drawIconikaLogo(document.getElementById('headerLogo'));
     drawIconikaLogo(document.getElementById('heroLogo'));
+    drawIconikaLogo(document.getElementById('endedLogo'));
     drawIconikaLogo(document.getElementById('passLogo'));
     drawWheel();
     pullState();
