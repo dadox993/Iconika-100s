@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ICONIKA • THE 100's — EPISODIO ZERO</title>
+  <style>
+    :root {
+      --bg: #07070c;
+      --panel: #11111a;
+      --panel-2: #181825;
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --pink: #ec4899;
+      --purple: #8b5cf6;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --yellow: #eab308;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #181128 0%, var(--bg) 60%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(10, 10, 16, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow: hidden;
+    }
+
+    .badge-ep {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: rgba(236, 72, 153, 0.16);
+      border: 1px solid rgba(236, 72, 153, 0.45);
+      color: #f9a8d4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #f59e0b;
+    }
+
+    .live-pill.connected {
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.14);
+    }
+
+    .live-pill.connected .live-dot {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .btn-master-toggle {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 390px) {
+      .badge-ep {
+        display: none;
+      }
+      .live-text {
+        display: none;
+      }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 18px 16px 36px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(24, 24, 37, 0.94), rgba(14, 14, 22, 0.98));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    }
+
+    .hidden { display: none !important; }
+
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .logo-wrap canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 900;
+      text-align: center;
+      margin: 4px 0 6px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #fff, #f9a8d4, #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 0 0 18px;
+    }
+
+    .legend-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="number"], input[type="password"] {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: #0b0b12;
+      color: #fff;
+      font-size: 15px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #fff;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(236, 72, 153, 0.35);
+    }
+
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .player-tag {
+      font-size: 13px;
+      font-weight: 800;
+      color: #f9a8d4;
+    }
+
+    .round-pill {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.45);
+      color: #ddd6fe;
+    }
+
+    /* Radar Attesa */
+    .radar-box {
+      text-align: center;
+      padding: 26px 10px;
+    }
+
+    .radar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      margin: 0 auto 18px;
+      background: radial-gradient(circle, rgba(236,72,153,0.35), rgba(139,92,246,0.08));
+      border: 2px solid rgba(236, 72, 153, 0.6);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.55); }
+      70% { box-shadow: 0 0 0 22px rgba(236, 72, 153, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+    }
+
+    /* Votazione */
+    .timer-bar-wrap {
+      background: rgba(255, 255, 255, 0.08);
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 6px;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #10b981, #eab308, #ef4444);
+      transition: width 0.25s linear;
+    }
+
+    .timer-text {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .vote-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .vote-btn {
+      border: 2px solid transparent;
+      border-radius: 18px;
+      padding: 22px 12px;
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.15s, opacity 0.2s, box-shadow 0.2s;
+    }
+
+    .vote-btn:active { transform: scale(0.96); }
+    .vote-btn.red { background: linear-gradient(145deg, #dc2626, #991b1b); box-shadow: 0 10px 24px rgba(239, 68, 68, 0.35); }
+    .vote-btn.blue { background: linear-gradient(145deg, #2563eb, #1e40af); box-shadow: 0 10px 24px rgba(59, 130, 246, 0.35); }
+    .vote-btn.green { background: linear-gradient(145deg, #059669, #065f46); box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); }
+    .vote-btn.yellow { background: linear-gradient(145deg, #d97706, #92400e); box-shadow: 0 10px 24px rgba(234, 179, 8, 0.35); }
+
+    .vote-btn.selected {
+      border-color: #fff;
+      transform: scale(1.03);
+    }
+
+    .vote-btn.dimmed {
+      opacity: 0.42;
+    }
+
+    .vote-color-name {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .vote-genre {
+      font-size: 16px;
+      line-height: 1.15;
+    }
+
+    /* Verdetto */
+    .verdict-card {
+      text-align: center;
+      padding: 28px 18px;
+      border-radius: 20px;
+      color: #fff;
+    }
+
+    .verdict-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.35);
+      margin-bottom: 12px;
+    }
+
+    .verdict-title {
+      font-size: 32px;
+      font-weight: 900;
+      margin: 4px 0 8px;
+      text-transform: uppercase;
+    }
+
+    /* Ruota */
+    .wheel-wrap {
+      position: relative;
+      width: 270px;
+      height: 270px;
+      margin: 10px auto 18px;
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 24px solid #fff;
+      z-index: 10;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+    }
+
+    #wheelCanvas {
+      width: 270px;
+      height: 270px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 35px rgba(236, 72, 153, 0.35);
+      transition: transform 4.2s cubic-bezier(0.15, 0.85, 0.2, 1);
+    }
+
+    /* Pass Vincitore */
+    .winner-pass {
+      border: 2px solid #f472b6;
+      background: linear-gradient(160deg, #1f1135, #0e0e18);
+      border-radius: 22px;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .live-clock {
+      font-family: monospace;
+      font-size: 20px;
+      font-weight: 900;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 6px 12px;
+      border-radius: 10px;
+      display: inline-block;
+      margin: 10px 0;
+    }
+
+    .prize-box {
+      font-size: 22px;
+      font-weight: 900;
+      color: #fde047;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(234, 179, 8, 0.14);
+      border: 1px dashed rgba(234, 179, 8, 0.55);
+    }
+
+    /* Master Console */
+    .master-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .master-section h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #f9a8d4;
+    }
+
+    .round-selector {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .r-btn {
+      padding: 10px 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .r-btn.active {
+      background: var(--pink);
+      border-color: #fbcfe8;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .stat-bar-row {
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-track {
+      height: 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .qr-box {
+      background: #0b0b12;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .prize-chip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .status-banner {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(236, 72, 153, 0.15);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      color: #fbcfe8;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand-left">
+      <canvas id="headerLogo" width="92" height="36"></canvas>
+      <span class="badge-ep">THE 100's • EP. ZERO</span>
+    </div>
+    <div class="top-actions">
+      <div id="liveIndicator" class="live-pill" title="Stato sincronizzazione">
+        <span class="live-dot"></span>
+        <span id="liveText" class="live-text">LOCALE</span>
+      </div>
+      <button id="toggleMasterBtn" class="btn-master-toggle">Master</button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- VIEW 1: CHECK-IN GIOCATORE -->
+    <section id="checkinView" class="card">
+      <div class="logo-wrap">
+        <canvas id="heroLogo" width="240" height="92"></canvas>
+      </div>
+      <h1>THE 100's — EPISODIO ZERO</h1>
+      <p class="subtitle">100 giocatori. 1 bracciale. 4 round per decidere musica, luci e atmosfera. Alla fine gira la Ruota del Master per 5 premi esclusivi.</p>
+
+      <div class="legend-grid">
+        <div class="legend-item"><span class="dot" style="background:var(--red)"></span>Rosso: Techno House</div>
+        <div class="legend-item"><span class="dot" style="background:var(--blue)"></span>Blu: Reggaeton</div>
+        <div class="legend-item"><span class="dot" style="background:var(--green)"></span>Verde: Commercial</div>
+        <div class="legend-item"><span class="dot" style="background:var(--yellow)"></span>Giallo: Strapop</div>
+      </div>
+
+      <label for="braceletInput">Numero Bracciale (1 - 100)</label>
+      <input id="braceletInput" type="number" min="1" max="100" placeholder="Es. 27" />
+
+      <label for="nickInput">Il tuo Nome / Nickname</label>
+      <input id="nickInput" type="text" maxlength="20" placeholder="Es. Alex" />
+
+      <button id="joinBtn" class="btn-primary">ENTRA NEL GAME</button>
+    </section>
+
+    <!-- VIEW 2: AREA GIOCATORE -->
+    <section id="playerView" class="card hidden">
+      <div class="player-header">
+        <div id="playerIdentity" class="player-tag">Bracciale #-- • Giocatore</div>
+        <div id="playerRoundPill" class="round-pill">ROUND 1 / 4</div>
+      </div>
+
+      <!-- Stato A: Attesa -->
+      <div id="stateWaiting" class="radar-box">
+        <div class="radar">🎧</div>
+        <h2 style="margin:0 0 8px; font-size:20px;">In attesa del Master</h2>
+        <p class="subtitle" style="margin:0;">Resta in pista! Appena il Master apre il voto, i 4 colori si accenderanno qui sul tuo schermo.</p>
+      </div>
+
+      <!-- Stato B: Votazione aperta -->
+      <div id="stateVoting" class="hidden">
+        <div style="text-align:center; font-size:12px; font-weight:800; color:#f9a8d4; letter-spacing:0.08em;">SCEGLI IL PROSSIMO SOUND</div>
+        <div class="timer-bar-wrap"><div id="playerTimerBar" class="timer-bar"></div></div>
+        <div id="playerTimerText" class="timer-text">45s</div>
+
+        <div class="vote-grid">
+          <button class="vote-btn red" data-color="red">
+            <span class="vote-color-name">Rosso</span>
+            <span class="vote-genre">TECHNO HOUSE</span>
+          </button>
+          <button class="vote-btn blue" data-color="blue">
+            <span class="vote-color-name">Blu</span>
+            <span class="vote-genre">REGGAETON</span>
+          </button>
+          <button class="vote-btn green" data-color="green">
+            <span class="vote-color-name">Verde</span>
+            <span class="vote-genre">COMMERCIAL</span>
+          </button>
+          <button class="vote-btn yellow" data-color="yellow">
+            <span class="vote-color-name">Giallo</span>
+            <span class="vote-genre">STRAPOP</span>
+          </button>
+        </div>
+
+        <p id="voteConfirmMsg" class="subtitle" style="margin-top:14px; margin-bottom:0;">Tocca un colore per inviare il tuo voto.</p>
+      </div>
+
+      <!-- Stato C: Verdetto -->
+      <div id="stateVerdict" class="hidden">
+        <div id="verdictBox" class="verdict-card" style="background:linear-gradient(145deg,#dc2626,#7f1d1d);">
+          <div class="verdict-badge">VERDETTO DEL MASTER</div>
+          <div id="verdictColorLabel" style="font-size:14px; font-weight:800; opacity:0.9;">VINCE IL ROSSO</div>
+          <div id="verdictGenreLabel" class="verdict-title">TECHNO HOUSE</div>
+          <p style="margin:0; font-size:13px; opacity:0.92;">Luci, sound e animazione cambiano adesso!</p>
+        </div>
+      </div>
+
+      <!-- Stato D: Ruota Finale -->
+      <div id="stateWheel" class="hidden" style="text-align:center;">
+        <h2 style="margin:0 0 4px; font-size:21px;">LA RUOTA DEL MASTER</h2>
+        <p class="subtitle" style="margin-bottom:8px;">Solo <strong>5 premi reali</strong> su 100 giocatori. Gira subito!</p>
+
+        <div id="wheelGameArea">
+          <div class="wheel-wrap">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelCanvas" width="540" height="540"></canvas>
+          </div>
+          <button id="spinBtn" class="btn-primary">GIRA LA RUOTA</button>
+        </div>
+
+        <!-- Esito Non Vincente -->
+        <div id="wheelLoseArea" class="hidden" style="padding:18px 8px;">
+          <div style="font-size:42px; margin-bottom:8px;">🔥</div>
+          <h3 style="margin:0 0 8px;">Grazie per aver giocato!</h3>
+          <p class="subtitle">I 5 premi speciali sono stati assegnati o questo giro era vuoto, ma la festa continua in pista con ICONIKA!</p>
+        </div>
+
+        <!-- Pass Vincitore -->
+        <div id="wheelWinArea" class="hidden winner-pass">
+          <div class="logo-wrap"><canvas id="passLogo" width="160" height="58"></canvas></div>
+          <div style="font-size:11px; font-weight:900; letter-spacing:0.12em; color:#f9a8d4;">PASS VINCITORE UFFICIALE</div>
+          <div id="winPrizeText" class="prize-box">DRINK OMAGGIO</div>
+          <div id="winPlayerMeta" style="font-size:13px; font-weight:700;">Bracciale #--</div>
+          <div id="liveClock" class="live-clock">00:00:00</div>
+          <p style="font-size:11px; color:var(--muted); margin:6px 0 12px;">Mostra questa schermata animata allo staff per ritirare il premio (no screenshot).</p>
+          <button id="redeemBtn" class="btn-secondary">CONVALIDA STAFF (RITIRATO)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: PIN MASTER -->
+    <section id="masterPinView" class="card hidden">
+      <h2 style="margin:0 0 6px; text-align:center;">Accesso Regia Master</h2>
+      <p class="subtitle">Inserisci il PIN per controllare i 4 round, i verdetti e il QR Code.</p>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="6" placeholder="PIN (default: 1000)" />
+      <div class="btn-row">
+        <button id="cancelPinBtn" class="btn-secondary">Annulla</button>
+        <button id="confirmPinBtn" class="btn-primary">Entra in Regia</button>
+      </div>
+    </section>
+
+    <!-- VIEW 4: CONSOLE REGIA MASTER -->
+    <section id="masterView" class="card hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h2 style="margin:0; font-size:19px;">Regia Master</h2>
+        <button id="backToPlayerBtn" class="btn-master-toggle">Vista Giocatore</button>
+      </div>
+
+      <div id="masterStatusBanner" class="status-banner">Stato: In attesa • Round 1</div>
+
+      <!-- Controllo Round -->
+      <div class="master-section" style="border-top:none; padding-top:0; margin-top:0;">
+        <h3>1. Gestione Round & Voto</h3>
+        <div class="round-selector" id="roundSelector">
+          <button class="r-btn active" data-r="1">Round 1</button>
+          <button class="r-btn" data-r="2">Round 2</button>
+          <button class="r-btn" data-r="3">Round 3</button>
+          <button class="r-btn" data-r="4">Round 4</button>
+        </div>
+
+        <div class="btn-row">
+          <button id="openVoteBtn" class="btn-primary">Apri Voto (45s)</button>
+          <button id="add15Btn" class="btn-secondary">+15s Extra</button>
+        </div>
+        <div class="btn-row">
+          <button id="closeVerdictBtn" class="btn-secondary" style="border-color:rgba(236,72,153,0.5);">Proclama Verdetto</button>
+          <button id="waitStateBtn" class="btn-secondary">Metti in Attesa</button>
+        </div>
+      </div>
+
+      <!-- Barre Live -->
+      <div class="master-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3 style="margin:0;">2. Voti in Diretta</h3>
+          <button id="simulateBtn" class="btn-master-toggle" style="font-size:11px;">+ Simula Voti</button>
+        </div>
+
+        <div class="stat-bar-row">
+          <div class="stat-label"><span>Rosso • Techno House</span><span id="cnt-red">0</span></div>
+          <div class="stat-track"><div id="bar-red" class="stat-fill" style="background:var(--red);"></div></div>
+        </div>
+        <div class="stat-bar-row">
+          <div class="stat-label"><span>Blu • Reggaeton</span><span id="cnt-blue">0</span></div>
+          <div class="stat-track"><div id="bar-blue" class="stat-fill" style="background:var(--blue);"></div></div>
+        </div>
+        <div class="stat-bar-row">
+          <div class="stat-label"><span>Verde • Commercial</span><span id="cnt-green">0</span></div>
+          <div class="stat-track"><div id="bar-green" class="stat-fill" style="background:var(--green);"></div></div>
+        </div>
+        <div class="stat-bar-row">
+          <div class="stat-label"><span>Giallo • Strapop</span><span id="cnt-yellow">0</span></div>
+          <div class="stat-track"><div id="bar-yellow" class="stat-fill" style="background:var(--yellow);"></div></div>
+        </div>
+      </div>
+
+      <!-- Ruota e 5 Premi -->
+      <div class="master-section">
+        <h3>3. Ruota Finale (Max 5 Premi)</h3>
+        <button id="unlockWheelBtn" class="btn-primary" style="margin-bottom:12px;">Sblocca Ruota sui Telefoni</button>
+        <div id="prizesList"></div>
+      </div>
+
+      <!-- Sincro Cloud -->
+      <div class="master-section">
+        <h3>4. Sincronizzazione Telefoni Live</h3>
+        <p style="font-size:12px; color:var(--muted); margin:0 0 8px;">Incolla l'URL del tuo Firebase Realtime Database per sincronizzare tutti i 100 telefoni in tempo reale.</p>
+        <input id="firebaseUrlInput" type="text" placeholder="https://tuo-progetto-default-rtdb.europe-west1.firebasedatabase.app" />
+        <div class="btn-row">
+          <button id="connectDbBtn" class="btn-primary">Collega Live</button>
+          <button id="resetAllBtn" class="btn-secondary" style="color:#fca5a5;">Reset Serata</button>
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="master-section">
+        <h3>5. QR Code Ingresso (Primi 100)</h3>
+        <div class="qr-box">
+          <canvas id="qrCanvas" width="220" height="220" style="border-radius:12px; background:#fff; padding:8px;"></canvas>
+          <p id="qrUrlLabel" style="font-size:11px; color:var(--muted); word-break:break-all; margin:8px 0 10px;"></p>
+          <button id="downloadQrBtn" class="btn-secondary">Scarica Poster QR PNG</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const GENRES = {
+      red: { name: 'ROSSO', genre: 'TECHNO HOUSE', hex: '#ef4444', bg: 'linear-gradient(145deg, #dc2626, #7f1d1d)' },
+      blue: { name: 'BLU', genre: 'REGGAETON', hex: '#3b82f6', bg: 'linear-gradient(145deg, #2563eb, #1e3a8a)' },
+      green: { name: 'VERDE', genre: 'COMMERCIAL', hex: '#10b981', bg: 'linear-gradient(145deg, #059669, #064e3b)' },
+      yellow: { name: 'GIALLO', genre: 'STRAPOP', hex: '#eab308', bg: 'linear-gradient(145deg, #d97706, #78350f)' }
+    };
+
+    const PRIZES = [
+      'DRINK OMAGGIO',
+      'INGRESSO OMAGGIO PROSSIMO SABATO',
+      'BIGLIETTO LISTA GOLD',
+      'BALLO DEDICATO CON ANIMAZIONE',
+      'SHOT + FOTO VIP CON LO STAFF'
+    ];
+
+    const MASTER_PIN = '1000';
+    const STORAGE_KEY = 'iconika_100s_state_v3';
+    const PLAYER_KEY = 'iconika_100s_player_v3';
+    const DB_KEY = 'iconika_100s_db_url';
+
+    let gameState = {
+      phase: 'waiting', // waiting | voting | verdict | wheel
+      round: 1,
+      endTime: 0,
+      duration: 45,
+      votes: { red: 0, blue: 0, green: 0, yellow: 0 },
+      verdictColor: 'red',
+      prizesClaimed: [false, false, false, false, false],
+      winners: [],
+      updatedAt: Date.now()
+    };
+
+    let player = JSON.parse(localStorage.getItem(PLAYER_KEY) || 'null');
+    let dbUrl = new URLSearchParams(window.location.search).get('db') || localStorage.getItem(DB_KEY) || '';
+    if (dbUrl) {
+      dbUrl = dbUrl.replace(/\/+$/, '');
+      localStorage.setItem(DB_KEY, dbUrl);
+    }
+
+    let isMasterOpen = false;
+    let isSpinning = false;
+    let wheelAngle = 0;
+
+    // --- DISEGNO LOGO ICONIKA SU CANVAS (IDEMPOTENTE) ---
+    function drawIconikaLogo(canvas) {
+      if (!canvas) return;
+      const baseW = Number(canvas.dataset.baseW || canvas.getAttribute('width') || 200);
+      const baseH = Number(canvas.dataset.baseH || canvas.getAttribute('height') || 70);
+      canvas.dataset.baseW = baseW;
+      canvas.dataset.baseH = baseH;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = baseW;
+      const h = baseH;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(dpr, dpr);
+
+      const cx = w / 2;
+      const cy = h * 0.56;
+
+      // Onda viola/magenta sullo sfondo
+      ctx.save();
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.strokeStyle = i % 2 === 0 ? 'rgba(139, 92, 246, 0.55)' : 'rgba(236, 72, 153, 0.45)';
+        ctx.lineWidth = Math.max(1.5, w * 0.012);
+        const amp = h * (0.24 - i * 0.03);
+        const startX = w * 0.16;
+        const endX = w * 0.84;
+        for (let x = startX; x <= endX; x += 3) {
+          const t = (x - startX) / (endX - startX);
+          const y = cy - Math.sin(t * Math.PI * 3 + i * 0.35) * amp * Math.sin(t * Math.PI);
+          if (x === startX) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Micro scritta superiore: ENJOY YOUR NIGHT
+      const subSize = Math.max(6, Math.round(w * 0.036));
+      ctx.font = `700 ${subSize}px sans-serif`;
+      ctx.fillStyle = '#e2e8f0';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('E N J O Y   Y O U R   N I G H T', cx, cy - h * 0.25);
+
+      const mainSize = Math.max(16, Math.round(w * 0.155));
+      ctx.font = `900 ${mainSize}px "Arial Black", Impact, sans-serif`;
+
+      // Eco fucsia superiore tagliato
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, cy - mainSize * 0.88, w, mainSize * 0.34);
+      ctx.clip();
+      ctx.fillStyle = '#ec4899';
+      ctx.fillText('ICONIKA', cx, cy - mainSize * 0.24);
+      ctx.restore();
+
+      // Eco fucsia inferiore tagliato
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, cy + mainSize * 0.34, w, mainSize * 0.36);
+      ctx.clip();
+      ctx.fillStyle = '#ec4899';
+      ctx.fillText('ICONIKA', cx, cy + mainSize * 0.24);
+      ctx.restore();
+
+      // Scritta centrale bianca nitida
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(236, 72, 153, 0.45)';
+      ctx.shadowBlur = 8;
+      ctx.fillText('ICONIKA', cx, cy);
+      ctx.shadowBlur = 0;
+    }
+
+    // --- GENERATORE QR CODE PURO JS ---
+    function drawQRCode(canvas, text) {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, size, size);
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, size, size);
+        ctx.drawImage(img, 10, 10, size - 20, size - 20);
+      };
+      img.onerror = () => {
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 12px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('QR PRONTO ONLINE', size / 2, size / 2);
+      };
+      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=1&data=${encodeURIComponent(text)}`;
+    }
+
+    function getShareUrl() {
+      const url = new URL(window.location.href.split('?')[0]);
+      if (dbUrl) url.searchParams.set('db', dbUrl);
+      return url.toString();
+    }
+
+    // --- SINCRONIZZAZIONE STATO (LOCAL + FIREBASE REST) ---
+    async function pushState() {
+      gameState.updatedAt = Date.now();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+      renderAll();
+      if (dbUrl) {
+        try {
+          await fetch(`${dbUrl}/iconika100s.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(gameState)
+          });
+        } catch (e) {}
+      }
+    }
+
+    async function pullState() {
+      if (dbUrl) {
+        try {
+          const res = await fetch(`${dbUrl}/iconika100s.json?t=${Date.now()}`);
+          if (res.ok) {
+            const remote = await res.json();
+            if (remote && remote.updatedAt && remote.updatedAt !== gameState.updatedAt) {
+              gameState = Object.assign({}, gameState, remote);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+              renderAll();
+            }
+          }
+        } catch (e) {}
+      } else {
+        const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        if (local && local.updatedAt !== gameState.updatedAt) {
+          gameState = Object.assign({}, gameState, local);
+          renderAll();
+        }
+      }
+    }
+
+    // --- RUOTA DELLA FORTUNA ---
+    function drawWheel() {
+      const canvas = document.getElementById('wheelCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const r = cx - 8;
+
+      const slices = [
+        { label: 'DRINK', color: '#ec4899' },
+        { label: 'RITENTA', color: '#1e1b4b' },
+        { label: 'OMAGGIO', color: '#8b5cf6' },
+        { label: 'RITENTA', color: '#171726' },
+        { label: 'LISTA GOLD', color: '#eab308' },
+        { label: 'RITENTA', color: '#1e1b4b' },
+        { label: 'BALLO VIP', color: '#10b981' },
+        { label: 'RITENTA', color: '#171726' },
+        { label: 'SHOT + FOTO', color: '#3b82f6' },
+        { label: 'RITENTA', color: '#1e1b4b' }
+      ];
+
+      const arc = (Math.PI * 2) / slices.length;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      slices.forEach((s, i) => {
+        const start = i * arc - Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, start, start + arc);
+        ctx.closePath();
+        ctx.fillStyle = s.color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(start + arc / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 20px sans-serif';
+        ctx.fillText(s.label, r - 24, 7);
+        ctx.restore();
+      });
+
+      // Centro
+      ctx.beginPath();
+      ctx.arc(cx, cy, 42, 0, Math.PI * 2);
+      ctx.fillStyle = '#09090f';
+      ctx.fill();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#ec4899';
+      ctx.stroke();
+    }
+
+    async function spinWheel() {
+      if (!player || player.hasSpun || isSpinning) return;
+      isSpinning = true;
+      document.getElementById('spinBtn').disabled = true;
+
+      await pullState();
+      const availableIndices = [];
+      (gameState.prizesClaimed || [false, false, false, false, false]).forEach((claimed, idx) => {
+        if (!claimed) availableIndices.push(idx);
+      });
+
+      let wonIndex = -1;
+      if (availableIndices.length > 0 && Math.random() < 0.18) {
+        wonIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+      }
+
+      const targetSlice = wonIndex >= 0 ? wonIndex * 2 : (Math.floor(Math.random() * 5) * 2 + 1);
+      const sliceDeg = 360 / 10;
+      const stopDeg = 360 - (targetSlice * sliceDeg + sliceDeg / 2);
+      wheelAngle += 1800 + stopDeg;
+
+      const canvas = document.getElementById('wheelCanvas');
+      canvas.style.transform = `rotate(${wheelAngle}deg)`;
+
+      setTimeout(async () => {
+        isSpinning = false;
+        player.hasSpun = true;
+
+        if (wonIndex >= 0) {
+          await pullState();
+          if (!gameState.prizesClaimed[wonIndex]) {
+            gameState.prizesClaimed[wonIndex] = true;
+            gameState.winners = gameState.winners || [];
+            gameState.winners.push({
+              bracelet: player.bracelet,
+              nick: player.nick,
+              prize: PRIZES[wonIndex],
+              time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+            });
+            player.wonPrize = PRIZES[wonIndex];
+            await pushState();
+          } else {
+            player.wonPrize = null;
+          }
+        } else {
+          player.wonPrize = null;
+        }
+
+        localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+        renderAll();
+      }, 4300);
+    }
+
+    // --- RENDER INTERFACCIA ---
+    function renderAll() {
+      const livePill = document.getElementById('liveIndicator');
+      const liveText = document.getElementById('liveText');
+      if (dbUrl) {
+        livePill.classList.add('connected');
+        liveText.textContent = 'LIVE CLOUD';
+      } else {
+        livePill.classList.remove('connected');
+        liveText.textContent = 'LOCALE';
+      }
+
+      const checkinView = document.getElementById('checkinView');
+      const playerView = document.getElementById('playerView');
+      const masterPinView = document.getElementById('masterPinView');
+      const masterView = document.getElementById('masterView');
+
+      checkinView.classList.add('hidden');
+      playerView.classList.add('hidden');
+      masterPinView.classList.add('hidden');
+      masterView.classList.add('hidden');
+
+      if (isMasterOpen) {
+        masterView.classList.remove('hidden');
+        renderMaster();
+        return;
+      }
+
+      if (!player) {
+        checkinView.classList.remove('hidden');
+        return;
+      }
+
+      playerView.classList.remove('hidden');
+      document.getElementById('playerIdentity').textContent = `Bracciale #${player.bracelet} • ${player.nick}`;
+      document.getElementById('playerRoundPill').textContent = `ROUND ${gameState.round} / 4`;
+
+      const sWait = document.getElementById('stateWaiting');
+      const sVote = document.getElementById('stateVoting');
+      const sVerd = document.getElementById('stateVerdict');
+      const sWheel = document.getElementById('stateWheel');
+
+      sWait.classList.add('hidden');
+      sVote.classList.add('hidden');
+      sVerd.classList.add('hidden');
+      sWheel.classList.add('hidden');
+
+      if (gameState.phase === 'waiting') {
+        sWait.classList.remove('hidden');
+      } else if (gameState.phase === 'voting') {
+        sVote.classList.remove('hidden');
+        const myVote = player.votes && player.votes[gameState.round];
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+          const c = btn.dataset.color;
+          btn.classList.remove('selected', 'dimmed');
+          if (myVote) {
+            if (c === myVote) btn.classList.add('selected');
+            else btn.classList.add('dimmed');
+          }
+        });
+        document.getElementById('voteConfirmMsg').textContent = myVote
+          ? `Hai votato ${GENRES[myVote].name} (${GENRES[myVote].genre})!`
+          : 'Tocca un colore per inviare il tuo voto.';
+      } else if (gameState.phase === 'verdict') {
+        sVerd.classList.remove('hidden');
+        const info = GENRES[gameState.verdictColor] || GENRES.red;
+        document.getElementById('verdictBox').style.background = info.bg;
+        document.getElementById('verdictColorLabel').textContent = `VINCE IL ${info.name}`;
+        document.getElementById('verdictGenreLabel').textContent = info.genre;
+      } else if (gameState.phase === 'wheel') {
+        sWheel.classList.remove('hidden');
+        const gameArea = document.getElementById('wheelGameArea');
+        const loseArea = document.getElementById('wheelLoseArea');
+        const winArea = document.getElementById('wheelWinArea');
+
+        gameArea.classList.add('hidden');
+        loseArea.classList.add('hidden');
+        winArea.classList.add('hidden');
+
+        if (!player.hasSpun) {
+          gameArea.classList.remove('hidden');
+        } else if (player.wonPrize) {
+          winArea.classList.remove('hidden');
+          document.getElementById('winPrizeText').textContent = player.wonPrize;
+          document.getElementById('winPlayerMeta').textContent = `Bracciale #${player.bracelet} • ${player.nick}`;
+          const rBtn = document.getElementById('redeemBtn');
+          if (player.redeemed) {
+            rBtn.textContent = 'PREMIO GIÀ RITIRATO ✓';
+            rBtn.disabled = true;
+            rBtn.style.opacity = '0.5';
+          }
+        } else {
+          loseArea.classList.remove('hidden');
+        }
+      }
+    }
+
+    function renderMaster() {
+      document.querySelectorAll('.r-btn').forEach(b => {
+        b.classList.toggle('active', Number(b.dataset.r) === gameState.round);
+      });
+
+      const v = gameState.votes || { red: 0, blue: 0, green: 0, yellow: 0 };
+      const total = Math.max(1, v.red + v.blue + v.green + v.yellow);
+
+      ['red', 'blue', 'green', 'yellow'].forEach(c => {
+        document.getElementById(`cnt-${c}`).textContent = v[c] || 0;
+        document.getElementById(`bar-${c}`).style.width = `${Math.round(((v[c] || 0) / total) * 100)}%`;
+      });
+
+      const pList = document.getElementById('prizesList');
+      pList.innerHTML = '';
+      PRIZES.forEach((pName, idx) => {
+        const claimed = gameState.prizesClaimed && gameState.prizesClaimed[idx];
+        const row = document.createElement('div');
+        row.className = 'prize-chip';
+        row.innerHTML = `<span>${idx + 1}. ${pName}</span><strong style="color:${claimed ? '#f87171' : '#6ee7b7'}">${claimed ? 'ASSEGNATO' : 'DISPONIBILE'}</strong>`;
+        pList.appendChild(row);
+      });
+
+      document.getElementById('firebaseUrlInput').value = dbUrl;
+      const shareUrl = getShareUrl();
+      document.getElementById('qrUrlLabel').textContent = shareUrl;
+      drawQRCode(document.getElementById('qrCanvas'), shareUrl);
+    }
+
+    // --- LOOP TIMER CONTINUO (250ms) ---
+    setInterval(() => {
+      const clockEl = document.getElementById('liveClock');
+      if (clockEl) {
+        clockEl.textContent = new Date().toLocaleTimeString('it-IT');
+      }
+
+      const banner = document.getElementById('masterStatusBanner');
+      if (gameState.phase === 'voting') {
+        const remMs = Math.max(0, gameState.endTime - Date.now());
+        const remSec = Math.ceil(remMs / 1000);
+        const pct = Math.min(100, (remMs / ((gameState.duration || 45) * 1000)) * 100);
+
+        const pText = document.getElementById('playerTimerText');
+        const pBar = document.getElementById('playerTimerBar');
+        if (pText) pText.textContent = `${remSec}s`;
+        if (pBar) pBar.style.width = `${pct}%`;
+        if (banner) banner.textContent = `VOTO APERTO • Round ${gameState.round} • ${remSec}s`;
+
+        if (remMs <= 0) {
+          closeAndDeclareVerdict();
+        }
+      } else if (banner) {
+        const labels = {
+          waiting: `In attesa • Round ${gameState.round}`,
+          verdict: `Verdetto Round ${gameState.round}: ${GENRES[gameState.verdictColor]?.genre || ''}`,
+          wheel: 'Ruota Finale attiva sui telefoni'
+        };
+        banner.textContent = `Stato: ${labels[gameState.phase] || ''}`;
+      }
+    }, 250);
+
+    // Polling live ogni 2.5s
+    setInterval(pullState, 2500);
+
+    function closeAndDeclareVerdict() {
+      const v = gameState.votes || { red: 0, blue: 0, green: 0, yellow: 0 };
+      let winner = 'red';
+      let max = -1;
+      ['red', 'blue', 'green', 'yellow'].forEach(c => {
+        if ((v[c] || 0) > max) {
+          max = v[c] || 0;
+          winner = c;
+        }
+      });
+      gameState.phase = 'verdict';
+      gameState.verdictColor = winner;
+      pushState();
+    }
+
+    // --- EVENT LISTENERS ---
+    document.getElementById('joinBtn').addEventListener('click', () => {
+      const b = parseInt(document.getElementById('braceletInput').value, 10);
+      const n = document.getElementById('nickInput').value.trim();
+      if (!b || b < 1 || b > 100) {
+        alert('Inserisci il numero del tuo bracciale (da 1 a 100).');
+        return;
+      }
+      if (!n) {
+        alert('Inserisci il tuo nome o nickname.');
+        return;
+      }
+      player = { bracelet: b, nick: n, votes: {}, hasSpun: false, wonPrize: null, redeemed: false };
+      localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+      renderAll();
+    });
+
+    document.querySelectorAll('.vote-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (gameState.phase !== 'voting' || !player) return;
+        const color = btn.dataset.color;
+        player.votes = player.votes || {};
+        const prev = player.votes[gameState.round];
+        if (prev === color) return;
+
+        if (prev && gameState.votes[prev] > 0) gameState.votes[prev]--;
+        gameState.votes[color] = (gameState.votes[color] || 0) + 1;
+        player.votes[gameState.round] = color;
+
+        localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+        await pushState();
+      });
+    });
+
+    document.getElementById('spinBtn').addEventListener('click', spinWheel);
+
+    document.getElementById('redeemBtn').addEventListener('click', () => {
+      if (!player) return;
+      if (confirm('Confermi il ritiro del premio da parte dello staff?')) {
+        player.redeemed = true;
+        localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+        renderAll();
+      }
+    });
+
+    // Master navigation
+    document.getElementById('toggleMasterBtn').addEventListener('click', () => {
+      if (isMasterOpen) {
+        isMasterOpen = false;
+        renderAll();
+      } else {
+        document.getElementById('checkinView').classList.add('hidden');
+        document.getElementById('playerView').classList.add('hidden');
+        document.getElementById('masterPinView').classList.remove('hidden');
+        document.getElementById('pinInput').value = '';
+        document.getElementById('pinInput').focus();
+      }
+    });
+
+    document.getElementById('cancelPinBtn').addEventListener('click', renderAll);
+
+    document.getElementById('confirmPinBtn').addEventListener('click', () => {
+      if (document.getElementById('pinInput').value === MASTER_PIN) {
+        isMasterOpen = true;
+        renderAll();
+      } else {
+        alert('PIN non valido.');
+      }
+    });
+
+    document.getElementById('backToPlayerBtn').addEventListener('click', () => {
+      isMasterOpen = false;
+      renderAll();
+    });
+
+    document.querySelectorAll('.r-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        gameState.round = Number(btn.dataset.r);
+        pushState();
+      });
+    });
+
+    document.getElementById('openVoteBtn').addEventListener('click', () => {
+      gameState.phase = 'voting';
+      gameState.duration = 45;
+      gameState.endTime = Date.now() + 45000;
+      gameState.votes = { red: 0, blue: 0, green: 0, yellow: 0 };
+      pushState();
+    });
+
+    document.getElementById('add15Btn').addEventListener('click', () => {
+      if (gameState.phase === 'voting') {
+        gameState.duration += 15;
+        gameState.endTime += 15000;
+        pushState();
+      }
+    });
+
+    document.getElementById('closeVerdictBtn').addEventListener('click', closeAndDeclareVerdict);
+
+    document.getElementById('waitStateBtn').addEventListener('click', () => {
+      gameState.phase = 'waiting';
+      pushState();
+    });
+
+    document.getElementById('simulateBtn').addEventListener('click', () => {
+      const keys = ['red', 'blue', 'green', 'yellow'];
+      for (let i = 0; i < 12; i++) {
+        const k = keys[Math.floor(Math.random() * keys.length)];
+        gameState.votes[k] = (gameState.votes[k] || 0) + 1;
+      }
+      pushState();
+    });
+
+    document.getElementById('unlockWheelBtn').addEventListener('click', () => {
+      gameState.phase = 'wheel';
+      pushState();
+    });
+
+    document.getElementById('connectDbBtn').addEventListener('click', async () => {
+      const val = document.getElementById('firebaseUrlInput').value.trim().replace(/\/+$/, '');
+      dbUrl = val;
+      if (dbUrl) localStorage.setItem(DB_KEY, dbUrl);
+      else localStorage.removeItem(DB_KEY);
+      await pushState();
+      alert(dbUrl ? 'Database collegato! Il QR Code ora include la sincronizzazione live.' : 'Modalità locale ripristinata.');
+    });
+
+    document.getElementById('resetAllBtn').addEventListener('click', async () => {
+      if (!confirm('Vuoi resettare tutti i round, i voti e i 5 premi della serata?')) return;
+      gameState = {
+        phase: 'waiting',
+        round: 1,
+        endTime: 0,
+        duration: 45,
+        votes: { red: 0, blue: 0, green: 0, yellow: 0 },
+        verdictColor: 'red',
+        prizesClaimed: [false, false, false, false, false],
+        winners: [],
+        updatedAt: Date.now()
+      };
+      localStorage.removeItem(PLAYER_KEY);
+      player = null;
+      await pushState();
+      alert('Serata resettata con successo.');
+    });
+
+    document.getElementById('downloadQrBtn').addEventListener('click', () => {
+      const poster = document.createElement('canvas');
+      poster.width = 800;
+      poster.height = 1100;
+      const ctx = poster.getContext('2d');
+
+      ctx.fillStyle = '#07070c';
+      ctx.fillRect(0, 0, 800, 1100);
+
+      const tmpLogo = document.createElement('canvas');
+      tmpLogo.width = 460;
+      tmpLogo.height = 170;
+      drawIconikaLogo(tmpLogo);
+      ctx.drawImage(tmpLogo, 170, 60, 460, 170);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 42px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText("THE 100's — EPISODIO ZERO", 400, 290);
+
+      ctx.fillStyle = '#f9a8d4';
+      ctx.font = '700 24px sans-serif';
+      ctx.fillText('INQUADRA IL QR • ENTRA NEL GAME', 400, 340);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(190, 390, 420, 420);
+      const qrSrc = document.getElementById('qrCanvas');
+      ctx.drawImage(qrSrc, 210, 410, 380, 380);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 20px sans-serif';
+      ctx.fillText('100 Giocatori • 4 Round • Ruota Finale con 5 Premi', 400, 880);
+
+      const link = document.createElement('a');
+      link.download = 'ICONIKA-THE100S-QR.png';
+      link.href = poster.toDataURL('image/png');
+      link.click();
+    });
+
+    // Init
+    drawIconikaLogo(document.getElementById('headerLogo'));
+    drawIconikaLogo(document.getElementById('heroLogo'));
+    drawIconikaLogo(document.getElementById('passLogo'));
+    drawWheel();
+    pullState();
+    renderAll();
+  </script>
+</body>
+  </html>
