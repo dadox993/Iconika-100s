@@ -331,15 +331,28 @@
       position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
+      gap: 6px;
+      padding: 6px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(236, 72, 153, 0.5);
-      background: rgba(236, 72, 153, 0.16);
-      color: #fbcfe8;
-      font-size: 11px;
-      font-weight: 800;
+      border: 1.5px solid #f472b6;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.28), rgba(139, 92, 246, 0.28));
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
       cursor: pointer;
+      box-shadow: 0 0 14px rgba(236, 72, 153, 0.45);
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+
+    .btn-vibe-pill:active {
+      transform: scale(0.95);
+    }
+
+    .btn-vibe-pill.active {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      border-color: #ffffff;
+      box-shadow: 0 0 18px rgba(236, 72, 153, 0.75);
     }
 
     .vibe-badge-dot {
@@ -405,10 +418,11 @@
 
     .vibe-panel {
       margin-bottom: 16px;
-      padding: 14px;
+      padding: 16px;
       border-radius: 18px;
-      background: rgba(11, 11, 18, 0.92);
-      border: 1px solid rgba(236, 72, 153, 0.35);
+      background: linear-gradient(180deg, rgba(32, 16, 44, 0.96), rgba(13, 11, 22, 0.98));
+      border: 2px solid #f472b6;
+      box-shadow: 0 0 26px rgba(236, 72, 153, 0.32), inset 0 0 16px rgba(139, 92, 246, 0.16);
     }
 
     .vibe-header {
@@ -916,7 +930,7 @@
         <div class="player-header-right">
           <button id="toggleVibeBtn" class="btn-vibe-pill">
             <span id="vibeDot" class="vibe-badge-dot hidden"></span>
-            <span>Vibe</span>
+            <span>💌 Vibe</span>
           </button>
           <div id="playerRoundPill" class="round-pill">ROUND 1 / 4</div>
         </div>
@@ -1402,6 +1416,7 @@
 
     function renderVibePanel() {
       const panel = document.getElementById('vibePanel');
+      document.getElementById('toggleVibeBtn').classList.toggle('active', isVibeOpen);
       const radarBtn = document.getElementById('toggleVibeRadarBtn');
       radarBtn.textContent = vibeRadarEnabled ? 'Radar: Attivo' : 'Radar: Pausa';
       if (!isVibeOpen) {
