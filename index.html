@@ -139,17 +139,6 @@
       flex-shrink: 0;
     }
 
-    .btn-mini {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 5px 9px;
-      border-radius: 9px;
-      cursor: pointer;
-    }
-
     @media (max-width: 390px) {
       .badge-ep { display: none; }
       .live-text { display: none; }
@@ -787,7 +776,6 @@
         <div id="playerIdentity" class="player-tag">Bracciale #-- • Giocatore</div>
         <div class="player-header-right">
           <div id="playerRoundPill" class="round-pill">ROUND 1 / 4</div>
-          <button id="leavePlayerBtn" class="btn-mini">Cambia</button>
         </div>
       </div>
 
@@ -1546,13 +1534,6 @@
       }
       player = { bracelet: b, nick: n, votes: {}, hasSpun: false, wonPrize: null, redeemed: false };
       localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
-      await pullState();
-      renderAll();
-    });
-
-    document.getElementById('leavePlayerBtn').addEventListener('click', async () => {
-      localStorage.removeItem(PLAYER_KEY);
-      player = null;
       await pullState();
       renderAll();
     });
