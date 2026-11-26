@@ -973,14 +973,25 @@
     const PLAYER_KEY = 'iconika_100s_player_v3';
     const DB_KEY = 'iconika_100s_db_url';
 
-    function isValidPlayerIdentity(p) {
+    function createSessionId() {
+      return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    }
+
+    function isValidPlayerIdentity(p, activeSessionId) {
       if (!p || typeof p !== 'object') return false;
       const b = Number(p.bracelet);
       const n = typeof p.nick === 'string' ? p.nick.trim() : '';
-      return Number.isInteger(b) && b >= 1 && b <= 100 && n.length > 0;
+      const sameSession = !activeSessionId || p.sessionId === activeSessionId;
+      return Number.isInteger(b) && b >= 1 && b <= 100 && n.length > 0 && sameSession;
+    }
+
+    function clearStoredPlayer() {
+      player = null;
+      localStorage.removeItem(PLAYER_KEY);
     }
 
     let gameState = {
+      sessionId: createSessionId(),
       phase: 'waiting',
       round: 1,
       endTime: 0,
@@ -994,7 +1005,7 @@
     };
 
     let rawPlayer = JSON.parse(localStorage.getItem(PLAYER_KEY) || 'null');
-    let player = isValidPlayerIdentity(rawPlayer) ? rawPlayer : null;
+    let player = isValidPlayerIdentity(rawPlayer, gameState.sessionId) ? rawPlayer : null;
     if (!player) localStorage.removeItem(PLAYER_KEY);
 
     let dbUrl = new URLSearchParams(window.location.search).get('db') || localStorage.getItem(DB_KEY) || DEFAULT_DB_URL;
@@ -1126,6 +1137,7 @@
     }
 
     async function pushState() {
+      if (!gameState.sessionId) gameState.sessionId = createSessionId();
       gameState.updatedAt = Date.now();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
       renderAll();
@@ -1148,6 +1160,7 @@
             const remote = await res.json();
             if (remote && remote.phase) {
               gameState = Object.assign({}, gameState, remote);
+              if (!gameState.sessionId) gameState.sessionId = createSessionId();
               localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
               renderAll();
             }
@@ -1157,6 +1170,7 @@
         const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
         if (local && local.updatedAt !== gameState.updatedAt) {
           gameState = Object.assign({}, gameState, local);
+          if (!gameState.sessionId) gameState.sessionId = createSessionId();
           renderAll();
         }
       }
@@ -1218,10 +1232,9 @@
     }
 
     async function spinWheel() {
-      if (!isValidPlayerIdentity(player) || player.hasSpun || isSpinning) {
-        if (!isValidPlayerIdentity(player)) {
-          player = null;
-          localStorage.removeItem(PLAYER_KEY);
+      if (!isValidPlayerIdentity(player, gameState.sessionId) || player.hasSpun || isSpinning) {
+        if (!isValidPlayerIdentity(player, gameState.sessionId)) {
+          clearStoredPlayer();
           renderAll();
         }
         return;
@@ -1288,9 +1301,8 @@
     }
 
     function renderAll() {
-      if (player && !isValidPlayerIdentity(player)) {
-        player = null;
-        localStorage.removeItem(PLAYER_KEY);
+      if (player && !isValidPlayerIdentity(player, gameState.sessionId)) {
+        clearStoredPlayer();
       }
 
       const livePill = document.getElementById('liveIndicator');
@@ -1333,7 +1345,7 @@
         return;
       }
 
-      if (!isValidPlayerIdentity(player)) {
+      if (!isValidPlayerIdentity(player, gameState.sessionId)) {
         checkinView.classList.remove('hidden');
         return;
       }
@@ -1532,17 +1544,24 @@
         alert('Inserisci il tuo nome o nickname.');
         return;
       }
-      player = { bracelet: b, nick: n, votes: {}, hasSpun: false, wonPrize: null, redeemed: false };
-      localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
       await pullState();
+      player = {
+        sessionId: gameState.sessionId,
+        bracelet: b,
+        nick: n,
+        votes: {},
+        hasSpun: false,
+        wonPrize: null,
+        redeemed: false
+      };
+      localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
       renderAll();
     });
 
     document.querySelectorAll('.vote-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if (!isValidPlayerIdentity(player)) {
-          player = null;
-          localStorage.removeItem(PLAYER_KEY);
+        if (!isValidPlayerIdentity(player, gameState.sessionId)) {
+          clearStoredPlayer();
           renderAll();
           alert('Prima inserisci numero bracciale (1-100) e nickname.');
           return;
@@ -1583,7 +1602,7 @@
     document.getElementById('spinBtn').addEventListener('click', spinWheel);
 
     document.getElementById('redeemBtn').addEventListener('click', () => {
-      if (!isValidPlayerIdentity(player)) return;
+      if (!isValidPlayerIdentity(player, gameState.sessionId)) return;
       if (confirm('Confermi il ritiro del premio da parte dello staff?')) {
         player.redeemed = true;
         localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
@@ -1681,6 +1700,7 @@
     document.getElementById('resetAllBtn').addEventListener('click', async () => {
       if (!confirm('Vuoi resettare tutti i round, i voti e i 5 premi della serata?')) return;
       gameState = {
+        sessionId: createSessionId(),
         phase: 'waiting',
         round: 1,
         endTime: 0,
@@ -1692,8 +1712,7 @@
         winners: [],
         updatedAt: Date.now()
       };
-      localStorage.removeItem(PLAYER_KEY);
-      player = null;
+      clearStoredPlayer();
       lastAnnouncedVoteKey = '';
       lastAnnouncedDuration = 0;
       lastAnnouncedVerdictKey = '';
@@ -1703,7 +1722,9 @@
 
     document.getElementById('closeGameBtn').addEventListener('click', async () => {
       if (!confirm('Vuoi chiudere definitivamente il gioco per questa serata?')) return;
+      gameState.sessionId = createSessionId();
       gameState.phase = 'ended';
+      clearStoredPlayer();
       await pushState();
       isMasterOpen = false;
       isPinModalOpen = false;
