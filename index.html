@@ -295,10 +295,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 14px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
     }
 
     .player-tag {
@@ -308,19 +309,21 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      max-width: 100%;
     }
 
     .player-header-right {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex-shrink: 0;
+      flex-wrap: wrap;
+      margin-left: auto;
     }
 
     .round-pill {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
-      padding: 5px 10px;
+      padding: 5px 9px;
       border-radius: 999px;
       background: rgba(139, 92, 246, 0.2);
       border: 1px solid rgba(139, 92, 246, 0.45);
@@ -331,13 +334,13 @@
       position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
+      gap: 5px;
+      padding: 6px 11px;
       border-radius: 999px;
       border: 1.5px solid #f472b6;
       background: linear-gradient(135deg, rgba(236, 72, 153, 0.28), rgba(139, 92, 246, 0.28));
       color: #ffffff;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 900;
       letter-spacing: 0.03em;
       cursor: pointer;
@@ -353,6 +356,35 @@
       background: linear-gradient(135deg, var(--pink), var(--purple));
       border-color: #ffffff;
       box-shadow: 0 0 18px rgba(236, 72, 153, 0.75);
+    }
+
+    .btn-missions-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1.5px solid #facc15;
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.26), rgba(236, 72, 153, 0.22));
+      color: #fef08a;
+      font-size: 11.5px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(234, 179, 8, 0.35);
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+
+    .btn-missions-pill:active {
+      transform: scale(0.95);
+    }
+
+    .btn-missions-pill.active {
+      background: linear-gradient(135deg, #eab308, #d97706);
+      border-color: #ffffff;
+      color: #09090f;
+      box-shadow: 0 0 18px rgba(234, 179, 8, 0.7);
     }
 
     .vibe-badge-dot {
@@ -423,6 +455,129 @@
       background: linear-gradient(180deg, rgba(32, 16, 44, 0.96), rgba(13, 11, 22, 0.98));
       border: 2px solid #f472b6;
       box-shadow: 0 0 26px rgba(236, 72, 153, 0.32), inset 0 0 16px rgba(139, 92, 246, 0.16);
+    }
+
+    .missions-panel {
+      margin-bottom: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(38, 28, 12, 0.96), rgba(14, 12, 20, 0.98));
+      border: 2px solid #facc15;
+      box-shadow: 0 0 26px rgba(234, 179, 8, 0.28), inset 0 0 16px rgba(236, 72, 153, 0.14);
+    }
+
+    .missions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .mission-progress-pill {
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(234, 179, 8, 0.22);
+      border: 1px solid rgba(250, 204, 21, 0.55);
+      color: #fde047;
+    }
+
+    .mission-group-title {
+      font-size: 10.5px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f9a8d4;
+      margin: 12px 0 6px;
+    }
+
+    .mission-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .mission-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 13px;
+      font-weight: 700;
+      color: #f8fafc;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .mission-item.manual {
+      cursor: pointer;
+    }
+
+    .mission-item.manual:active {
+      transform: scale(0.99);
+    }
+
+    .mission-item.done {
+      border-color: rgba(16, 185, 129, 0.55);
+      background: rgba(16, 185, 129, 0.14);
+      color: #d1fae5;
+    }
+
+    .mission-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      flex-shrink: 0;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .mission-item.done .mission-check {
+      background: #10b981;
+      border-color: #6ee7b7;
+      color: #052e16;
+    }
+
+    .mission-tag-auto {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.25);
+      color: #ddd6fe;
+      flex-shrink: 0;
+    }
+
+    .mission-win-banner {
+      margin-top: 14px;
+      padding: 16px 14px;
+      border-radius: 16px;
+      background: linear-gradient(150deg, #27173a, #12101f);
+      border: 2px solid #facc15;
+      text-align: center;
+      box-shadow: 0 0 24px rgba(250, 204, 21, 0.3);
+    }
+
+    .mission-taken-banner {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 12.5px;
+      color: #e2e8f0;
+      text-align: center;
+      line-height: 1.45;
     }
 
     .vibe-header {
@@ -932,6 +1087,9 @@
             <span id="vibeDot" class="vibe-badge-dot hidden"></span>
             <span>💌 Vibe</span>
           </button>
+          <button id="toggleMissionsBtn" class="btn-missions-pill">
+            <span>🎯 Missioni</span>
+          </button>
           <div id="playerRoundPill" class="round-pill">ROUND 1 / 4</div>
         </div>
       </div>
@@ -963,6 +1121,24 @@
         </div>
 
         <p id="vibeFeedback" style="font-size:12px; color:#94a3b8; margin:8px 0 0; text-align:center;">Seleziona un bracciale e tocca una frase.</p>
+      </div>
+
+      <div id="missionsPanel" class="missions-panel hidden">
+        <div class="missions-header">
+          <span style="font-size:12px; font-weight:900; color:#fde047; letter-spacing:0.06em;">SFIDA 10 MISSIONI</span>
+          <span id="missionProgressPill" class="mission-progress-pill">0 / 10</span>
+        </div>
+        <p style="font-size:11.5px; color:#cbd5e1; margin:0 0 8px; line-height:1.4;">
+          Il <strong>primo giocatore</strong> che completa tutte e 10 le missioni vince una <strong>Drink Card ICONIKA</strong> valida per la settimana successiva (verifica prove allo staff).
+        </p>
+
+        <div class="mission-group-title">Automatiche nell'app (5)</div>
+        <div id="autoMissionsList" class="mission-list"></div>
+
+        <div class="mission-group-title">In pista • Verifica staff (5)</div>
+        <div id="manualMissionsList" class="mission-list"></div>
+
+        <div id="missionOutcomeBox"></div>
       </div>
 
       <div id="stateWaiting" class="radar-box">
@@ -1116,7 +1292,16 @@
       </div>
 
       <div class="master-section">
-        <h3>4. Controllo Fine Serata</h3>
+        <h3>4. Sfida 10 Missioni (Drink Card)</h3>
+        <div id="masterMissionWinnerBox" class="prize-chip" style="margin-bottom:8px;">
+          <span>Nessun vincitore 10/10 ancora</span>
+          <strong style="color:#6ee7b7;">DISPONIBILE</strong>
+        </div>
+        <button id="resetMissionWinnerBtn" class="btn-secondary">Sblocca / Riassegna Drink Card</button>
+      </div>
+
+      <div class="master-section">
+        <h3>5. Controllo Fine Serata</h3>
         <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">Sincronizzazione live già attiva. Usa i pulsanti qui sotto a fine serata per azzerare o chiudere il gioco.</p>
         <div class="btn-row">
           <button id="resetAllBtn" class="btn-secondary" style="color:#fca5a5;">Reset Serata</button>
@@ -1125,7 +1310,7 @@
       </div>
 
       <div class="master-section">
-        <h3>5. QR Code Ingresso (Primi 100)</h3>
+        <h3>6. QR Code Ingresso (Primi 100)</h3>
         <div class="qr-box">
           <canvas id="qrCanvas" width="220" height="220" style="border-radius:12px; background:#fff; padding:8px;"></canvas>
           <p id="qrUrlLabel" style="font-size:11px; color:var(--muted); word-break:break-all; margin:8px 0 10px;"></p>
@@ -1156,6 +1341,22 @@
       'Hey, ti trovo interessante! 😉',
       'Ciao, ti va un drink assieme? 🍸',
       'Che ne dici di una pausa sigaretta? 🚬'
+    ];
+
+    const AUTO_MISSIONS = [
+      { id: 'checkin', label: 'Check-in completato' },
+      { id: 'vote', label: 'Voto in pista' },
+      { id: 'vibe', label: 'Vibe inviato' },
+      { id: 'wheel', label: 'Ruota girata' },
+      { id: 'finale', label: 'Resta fino alla fine della serata' }
+    ];
+
+    const MANUAL_MISSIONS = [
+      { id: 'toast', label: 'Brindisi in pista' },
+      { id: 'photo_bracelet', label: 'Story foto con bracciale' },
+      { id: 'video_friends', label: 'Fai un video story, con i tuoi amici' },
+      { id: 'phone_up', label: 'Telefono in alto' },
+      { id: 'selfie_staff', label: "Fai una foto selfie insieme ad un membro dell'animazione" }
     ];
 
     const MASTER_PIN = '1000';
@@ -1194,6 +1395,7 @@
       verdictColor: 'red',
       prizesClaimed: [false, false, false, false, false],
       winners: [],
+      missionWinner: null,
       updatedAt: Date.now()
     };
 
@@ -1210,6 +1412,7 @@
     let isMasterOpen = false;
     let isPinModalOpen = false;
     let isVibeOpen = false;
+    let isMissionsOpen = false;
     let vibeRadarEnabled = true;
     let currentIncomingPing = null;
     let dismissedPingIds = new Set();
@@ -1374,6 +1577,158 @@
       }
     }
 
+    function getPlayerMissionProgress() {
+      if (!player) return { autoStatus: {}, manualDone: [], totalDone: 0 };
+      player.manualMissions = Array.isArray(player.manualMissions) ? player.manualMissions : [];
+
+      const hasVoted = player.votes && Object.keys(player.votes).length > 0;
+      const hasSentVibe = Boolean(player.hasSentVibe);
+      const hasSpunWheel = Boolean(player.hasSpun);
+      const reachedFinale = gameState.phase === 'wheel' || gameState.phase === 'ended' || (gameState.round >= 4 && gameState.phase === 'verdict');
+
+      const autoStatus = {
+        checkin: true,
+        vote: Boolean(hasVoted),
+        vibe: hasSentVibe,
+        wheel: hasSpunWheel,
+        finale: Boolean(reachedFinale)
+      };
+
+      const autoCount = Object.values(autoStatus).filter(Boolean).length;
+      const manualCount = MANUAL_MISSIONS.filter(m => player.manualMissions.includes(m.id)).length;
+
+      return {
+        autoStatus,
+        manualDone: player.manualMissions,
+        totalDone: autoCount + manualCount
+      };
+    }
+
+    async function checkAndClaimMissionWinner() {
+      if (!isValidPlayerIdentity(player, gameState.sessionId)) return;
+      const { totalDone } = getPlayerMissionProgress();
+      if (totalDone < 10) return;
+
+      await pullState();
+
+      if (!gameState.missionWinner) {
+        gameState.missionWinner = {
+          bracelet: Number(player.bracelet),
+          nick: player.nick,
+          time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          redeemed: false
+        };
+        triggerVibrate([150, 60, 200]);
+        await pushState();
+      } else {
+        renderAll();
+      }
+    }
+
+    function renderMissionsPanel() {
+      const panel = document.getElementById('missionsPanel');
+      const toggleBtn = document.getElementById('toggleMissionsBtn');
+      toggleBtn.classList.toggle('active', isMissionsOpen);
+
+      if (!isMissionsOpen || !player) {
+        panel.classList.add('hidden');
+        return;
+      }
+      panel.classList.remove('hidden');
+
+      const { autoStatus, manualDone, totalDone } = getPlayerMissionProgress();
+      document.getElementById('missionProgressPill').textContent = `${totalDone} / 10`;
+
+      const autoListEl = document.getElementById('autoMissionsList');
+      autoListEl.innerHTML = AUTO_MISSIONS.map(m => {
+        const done = Boolean(autoStatus[m.id]);
+        return `
+          <div class="mission-item ${done ? 'done' : ''}">
+            <div style="display:flex; align-items:center; gap:9px; min-width:0;">
+              <span class="mission-check">${done ? '✓' : ''}</span>
+              <span>${m.label}</span>
+            </div>
+            <span class="mission-tag-auto">${done ? 'FATTO' : 'AUTO'}</span>
+          </div>
+        `;
+      }).join('');
+
+      const manualListEl = document.getElementById('manualMissionsList');
+      manualListEl.innerHTML = MANUAL_MISSIONS.map(m => {
+        const done = manualDone.includes(m.id);
+        return `
+          <div class="mission-item manual ${done ? 'done' : ''}" data-mid="${m.id}">
+            <div style="display:flex; align-items:center; gap:9px; min-width:0;">
+              <span class="mission-check">${done ? '✓' : ''}</span>
+              <span>${m.label}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      manualListEl.querySelectorAll('.mission-item.manual').forEach(el => {
+        el.addEventListener('click', async () => {
+          const mid = el.dataset.mid;
+          player.manualMissions = Array.isArray(player.manualMissions) ? player.manualMissions : [];
+          if (player.manualMissions.includes(mid)) {
+            player.manualMissions = player.manualMissions.filter(id => id !== mid);
+          } else {
+            player.manualMissions.push(mid);
+            triggerVibrate(25);
+          }
+          localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+          renderMissionsPanel();
+          await checkAndClaimMissionWinner();
+        });
+      });
+
+      const outcomeEl = document.getElementById('missionOutcomeBox');
+      const winner = gameState.missionWinner;
+
+      if (winner && Number(winner.bracelet) === Number(player.bracelet) && winner.nick === player.nick) {
+        outcomeEl.innerHTML = `
+          <div class="mission-win-banner">
+            <div style="font-size:28px; margin-bottom:6px;">🏆🍹</div>
+            <div style="font-size:15px; font-weight:900; color:#fde047; line-height:1.35; margin-bottom:8px;">
+              Complimenti, hai portato a termine le missioni, hai vinto un Drink omaggiato da Iconika
+            </div>
+            <div style="font-size:12px; color:#f9a8d4; font-weight:800; margin-bottom:6px;">
+              Drink Card settimana successiva • Bracciale #${player.bracelet} (${player.nick})
+            </div>
+            <div style="font-size:11px; color:#cbd5e1; margin-bottom:10px;">
+              Mostra subito questa schermata e le foto/story allo staff per convalidare il premio (${winner.time}).
+            </div>
+            <button id="redeemMissionPrizeBtn" class="btn-secondary" ${winner.redeemed ? 'disabled style="opacity:0.5;"' : ''}>
+              ${winner.redeemed ? 'DRINK CARD CONVALIDATA ✓' : 'CONVALIDA STAFF (RITIRATO)'}
+            </button>
+          </div>
+        `;
+        const redeemBtn = document.getElementById('redeemMissionPrizeBtn');
+        if (redeemBtn && !winner.redeemed) {
+          redeemBtn.addEventListener('click', async () => {
+            if (!confirm('Confermi la verifica delle 10 missioni e la consegna della Drink Card?')) return;
+            await pullState();
+            if (gameState.missionWinner) {
+              gameState.missionWinner.redeemed = true;
+              await pushState();
+            }
+          });
+        }
+      } else if (winner) {
+        outcomeEl.innerHTML = `
+          <div class="mission-taken-banner">
+            La Drink Card ICONIKA è già stata conquistata per primo dal <strong>Bracciale #${winner.bracelet} (${winner.nick})</strong> alle ${winner.time}. Continua comunque a completare le sfide per divertirti in pista!
+          </div>
+        `;
+      } else if (totalDone >= 10) {
+        outcomeEl.innerHTML = `
+          <div class="mission-taken-banner">Verifica assegnazione in corso...</div>
+        `;
+      } else {
+        outcomeEl.innerHTML = '';
+      }
+    }
+
     function syncIncomingPings() {
       const banner = document.getElementById('incomingPingBanner');
       const dot = document.getElementById('vibeDot');
@@ -1492,8 +1847,12 @@
         createdAt: now
       });
 
+      player.hasSentVibe = true;
+      localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+
       triggerVibrate(30);
       await pushState();
+      await checkAndClaimMissionWinner();
       fb.textContent = `Vibe inviato a Bracciale #${toB}!`;
       fb.style.color = '#6ee7b7';
     }
@@ -1608,6 +1967,7 @@
         }
 
         localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+        await checkAndClaimMissionWinner();
         renderAll();
       }, 4300);
     }
@@ -1678,6 +2038,7 @@
 
       syncIncomingPings();
       renderVibePanel();
+      renderMissionsPanel();
 
       const sWait = document.getElementById('stateWaiting');
       const sVote = document.getElementById('stateVoting');
@@ -1804,6 +2165,20 @@
         pList.appendChild(row);
       });
 
+      const mwBox = document.getElementById('masterMissionWinnerBox');
+      if (gameState.missionWinner) {
+        const mw = gameState.missionWinner;
+        mwBox.innerHTML = `
+          <span><strong>#${mw.bracelet} ${mw.nick}</strong> (${mw.time})</span>
+          <strong style="color:${mw.redeemed ? '#f87171' : '#fde047'}">${mw.redeemed ? 'RITIRATO' : 'DA VERIFICARE'}</strong>
+        `;
+      } else {
+        mwBox.innerHTML = `
+          <span>Nessun vincitore 10/10 ancora</span>
+          <strong style="color:#6ee7b7;">DISPONIBILE</strong>
+        `;
+      }
+
       const shareUrl = getShareUrl();
       document.getElementById('qrUrlLabel').textContent = shareUrl;
       drawQRCode(document.getElementById('qrCanvas'), shareUrl);
@@ -1875,6 +2250,8 @@
         bracelet: b,
         nick: n,
         votes: {},
+        hasSentVibe: false,
+        manualMissions: [],
         hasSpun: false,
         wonPrize: null,
         redeemed: false
@@ -1885,7 +2262,17 @@
 
     document.getElementById('toggleVibeBtn').addEventListener('click', () => {
       isVibeOpen = !isVibeOpen;
+      if (isVibeOpen) isMissionsOpen = false;
       renderVibePanel();
+      renderMissionsPanel();
+    });
+
+    document.getElementById('toggleMissionsBtn').addEventListener('click', async () => {
+      isMissionsOpen = !isMissionsOpen;
+      if (isMissionsOpen) isVibeOpen = false;
+      renderVibePanel();
+      renderMissionsPanel();
+      if (isMissionsOpen) await checkAndClaimMissionWinner();
     });
 
     document.getElementById('toggleVibeRadarBtn').addEventListener('click', () => {
@@ -1948,6 +2335,7 @@
 
         localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
         await pushState();
+        await checkAndClaimMissionWinner();
       });
     });
 
@@ -2054,8 +2442,14 @@
       pushState();
     });
 
+    document.getElementById('resetMissionWinnerBtn').addEventListener('click', async () => {
+      if (!confirm('Vuoi azzerare il vincitore delle 10 missioni e rendere di nuovo disponibile la Drink Card?')) return;
+      gameState.missionWinner = null;
+      await pushState();
+    });
+
     document.getElementById('resetAllBtn').addEventListener('click', async () => {
-      if (!confirm('Vuoi resettare tutti i round, i voti e i 5 premi della serata?')) return;
+      if (!confirm('Vuoi resettare tutti i round, i voti, le missioni e i premi della serata?')) return;
       gameState = {
         sessionId: createSessionId(),
         phase: 'waiting',
@@ -2068,6 +2462,7 @@
         verdictColor: 'red',
         prizesClaimed: [false, false, false, false, false],
         winners: [],
+        missionWinner: null,
         updatedAt: Date.now()
       };
       clearStoredPlayer();
