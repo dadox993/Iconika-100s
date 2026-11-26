@@ -1360,11 +1360,29 @@
     ];
 
     const MASTER_PIN = '1000';
+    // SHA-256 hex del PIN Staff (default di esempio per "2026"; sostituisci con l'hash del tuo PIN Staff)
+    const STAFF_PIN_HASH = '6b51d431df5d7f141cbeac5462dd315f5ee529bb7de2a05947c19cfc92a88003';
     const DEFAULT_DB_URL = 'https://iconika-100s-default-rtdb.europe-west1.firebasedatabase.app';
 
     const STORAGE_KEY = 'iconika_100s_state_v3';
     const PLAYER_KEY = 'iconika_100s_player_v3';
     const DB_KEY = 'iconika_100s_db_url';
+
+    async function sha256Hex(text) {
+      const buf = new TextEncoder().encode(text);
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(digest))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    async function isValidStaffPin(enteredPin) {
+      if (enteredPin === null) return false;
+      const trimmed = enteredPin.trim();
+      if (!trimmed) return false;
+      const digest = await sha256Hex(trimmed);
+      return digest === STAFF_PIN_HASH;
+    }
 
     function createSessionId() {
       return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
@@ -1542,13 +1560,41 @@
       gameState.updatedAt = Date.now();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
       renderAll();
+
       if (dbUrl) {
+        const publicPayload = {
+          sessionId: gameState.sessionId,
+          phase: gameState.phase,
+          round: gameState.round,
+          endTime: gameState.endTime,
+          duration: gameState.duration,
+          verdictColor: gameState.verdictColor,
+          updatedAt: gameState.updatedAt
+        };
+
+        const privatePayload = {
+          votes: gameState.votes || { red: 0, blue: 0, green: 0, yellow: 0 },
+          voteLogs: gameState.voteLogs || [],
+          pings: gameState.pings || [],
+          prizesClaimed: gameState.prizesClaimed || [false, false, false, false, false],
+          winners: gameState.winners || [],
+          missionWinner: gameState.missionWinner || null,
+          updatedAt: gameState.updatedAt
+        };
+
         try {
-          await fetch(`${dbUrl}/iconika100s.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(gameState)
-          });
+          await Promise.all([
+            fetch(`${dbUrl}/publicState.json`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(publicPayload)
+            }),
+            fetch(`${dbUrl}/privateData.json`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(privatePayload)
+            })
+          ]);
         } catch (e) {}
       }
     }
@@ -1556,15 +1602,19 @@
     async function pullState() {
       if (dbUrl) {
         try {
-          const res = await fetch(`${dbUrl}/iconika100s.json?t=${Date.now()}`);
-          if (res.ok) {
-            const remote = await res.json();
-            if (remote && remote.phase) {
-              gameState = Object.assign({}, gameState, remote);
-              if (!gameState.sessionId) gameState.sessionId = createSessionId();
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
-              renderAll();
-            }
+          const [pubRes, privRes] = await Promise.all([
+            fetch(`${dbUrl}/publicState.json?t=${Date.now()}`),
+            fetch(`${dbUrl}/privateData.json?t=${Date.now()}`)
+          ]);
+
+          const pubData = pubRes.ok ? await pubRes.json() : null;
+          const privData = privRes.ok ? await privRes.json() : null;
+
+          if (pubData && pubData.phase) {
+            gameState = Object.assign({}, gameState, pubData, privData || {});
+            if (!gameState.sessionId) gameState.sessionId = createSessionId();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+            renderAll();
           }
         } catch (e) {}
       } else {
@@ -1706,7 +1756,12 @@
         const redeemBtn = document.getElementById('redeemMissionPrizeBtn');
         if (redeemBtn && !winner.redeemed) {
           redeemBtn.addEventListener('click', async () => {
-            if (!confirm('Confermi la verifica delle 10 missioni e la consegna della Drink Card?')) return;
+            const enteredPin = prompt('Inserisci il PIN Staff per convalidare la Drink Card:');
+            if (enteredPin === null) return;
+            if (!(await isValidStaffPin(enteredPin))) {
+              alert('PIN Staff non valido.');
+              return;
+            }
             await pullState();
             if (gameState.missionWinner) {
               gameState.missionWinner.redeemed = true;
@@ -2346,13 +2401,17 @@
 
     document.getElementById('spinBtn').addEventListener('click', spinWheel);
 
-    document.getElementById('redeemBtn').addEventListener('click', () => {
+    document.getElementById('redeemBtn').addEventListener('click', async () => {
       if (!isValidPlayerIdentity(player, gameState.sessionId)) return;
-      if (confirm('Confermi il ritiro del premio da parte dello staff?')) {
-        player.redeemed = true;
-        localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
-        renderAll();
+      const enteredPin = prompt('Inserisci il PIN Staff per convalidare il ritiro del premio:');
+      if (enteredPin === null) return;
+      if (!(await isValidStaffPin(enteredPin))) {
+        alert('PIN Staff non valido.');
+        return;
       }
+      player.redeemed = true;
+      localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+      renderAll();
     });
 
     document.getElementById('toggleMasterBtn').addEventListener('click', () => {
