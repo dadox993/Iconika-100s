@@ -327,6 +327,145 @@
       color: #ddd6fe;
     }
 
+    .btn-vibe-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(236, 72, 153, 0.5);
+      background: rgba(236, 72, 153, 0.16);
+      color: #fbcfe8;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .vibe-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #f472b6;
+      box-shadow: 0 0 8px #f472b6;
+    }
+
+    .incoming-ping-banner {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.24), rgba(139, 92, 246, 0.24));
+      border: 1px solid rgba(244, 114, 182, 0.6);
+      box-shadow: 0 10px 24px rgba(236, 72, 153, 0.2);
+    }
+
+    .ping-from {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: #f9a8d4;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .ping-msg {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .ping-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-ping-reply {
+      padding: 9px 10px;
+      border-radius: 11px;
+      border: none;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-ping-dismiss {
+      padding: 9px 10px;
+      border-radius: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(0, 0, 0, 0.35);
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .vibe-panel {
+      margin-bottom: 16px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(11, 11, 18, 0.92);
+      border: 1px solid rgba(236, 72, 153, 0.35);
+    }
+
+    .vibe-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .vibe-phrase-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .vibe-phrase-btn {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s, border-color 0.15s, background 0.15s;
+    }
+
+    .vibe-phrase-btn:hover {
+      border-color: rgba(244, 114, 182, 0.65);
+      background: rgba(236, 72, 153, 0.14);
+    }
+
+    .vibe-phrase-btn:active {
+      transform: scale(0.98);
+    }
+
+    .active-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .active-pill-chip {
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(139, 92, 246, 0.45);
+      background: rgba(139, 92, 246, 0.16);
+      color: #ede9fe;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .radar-box {
       text-align: center;
       padding: 26px 10px;
@@ -775,8 +914,41 @@
       <div class="player-header">
         <div id="playerIdentity" class="player-tag">Bracciale #-- • Giocatore</div>
         <div class="player-header-right">
+          <button id="toggleVibeBtn" class="btn-vibe-pill">
+            <span id="vibeDot" class="vibe-badge-dot hidden"></span>
+            <span>Vibe</span>
+          </button>
           <div id="playerRoundPill" class="round-pill">ROUND 1 / 4</div>
         </div>
+      </div>
+
+      <div id="incomingPingBanner" class="incoming-ping-banner hidden">
+        <div id="pingFromLabel" class="ping-from">BRACCIALE #-- • NICK</div>
+        <div id="pingMessageLabel" class="ping-msg">Hey, ti trovo interessante! 😉</div>
+        <div class="ping-actions">
+          <button id="replyPingBtn" class="btn-ping-reply">Ricambia</button>
+          <button id="dismissPingBtn" class="btn-ping-dismiss">Chiudi</button>
+        </div>
+      </div>
+
+      <div id="vibePanel" class="vibe-panel hidden">
+        <div class="vibe-header">
+          <span style="font-size:12px; font-weight:900; color:#f9a8d4; letter-spacing:0.06em;">MANDA UN VIBE IN PISTA</span>
+          <button id="toggleVibeRadarBtn" class="btn-master-toggle" style="font-size:11px; padding:4px 8px;">Radar: Attivo</button>
+        </div>
+
+        <label for="targetBraceletInput">Bracciale destinatario (1 - 100)</label>
+        <input id="targetBraceletInput" type="number" min="1" max="100" placeholder="Es. 14" style="margin-bottom:8px;" />
+
+        <div id="activePlayersQuickList" class="active-pills"></div>
+
+        <div class="vibe-phrase-list">
+          <button class="vibe-phrase-btn" data-phrase="Hey, ti trovo interessante! 😉">Hey, ti trovo interessante! 😉</button>
+          <button class="vibe-phrase-btn" data-phrase="Ciao, ti va un drink assieme? 🍸">Ciao, ti va un drink assieme? 🍸</button>
+          <button class="vibe-phrase-btn" data-phrase="Che ne dici di una pausa sigaretta? 🚬">Che ne dici di una pausa sigaretta? 🚬</button>
+        </div>
+
+        <p id="vibeFeedback" style="font-size:12px; color:#94a3b8; margin:8px 0 0; text-align:center;">Seleziona un bracciale e tocca una frase.</p>
       </div>
 
       <div id="stateWaiting" class="radar-box">
@@ -966,6 +1138,12 @@
       'SHOT + FOTO VIP CON LO STAFF'
     ];
 
+    const VIBE_PHRASES = [
+      'Hey, ti trovo interessante! 😉',
+      'Ciao, ti va un drink assieme? 🍸',
+      'Che ne dici di una pausa sigaretta? 🚬'
+    ];
+
     const MASTER_PIN = '1000';
     const DEFAULT_DB_URL = 'https://iconika-100s-default-rtdb.europe-west1.firebasedatabase.app';
 
@@ -998,6 +1176,7 @@
       duration: 45,
       votes: { red: 0, blue: 0, green: 0, yellow: 0 },
       voteLogs: [],
+      pings: [],
       verdictColor: 'red',
       prizesClaimed: [false, false, false, false, false],
       winners: [],
@@ -1016,6 +1195,11 @@
 
     let isMasterOpen = false;
     let isPinModalOpen = false;
+    let isVibeOpen = false;
+    let vibeRadarEnabled = true;
+    let currentIncomingPing = null;
+    let dismissedPingIds = new Set();
+    let lastVibratedPingId = '';
     let isSpinning = false;
     let wheelAngle = 0;
     let crowdLightEnabled = true;
@@ -1174,6 +1358,129 @@
           renderAll();
         }
       }
+    }
+
+    function syncIncomingPings() {
+      const banner = document.getElementById('incomingPingBanner');
+      const dot = document.getElementById('vibeDot');
+      if (!isValidPlayerIdentity(player, gameState.sessionId) || !vibeRadarEnabled) {
+        currentIncomingPing = null;
+        banner.classList.add('hidden');
+        dot.classList.add('hidden');
+        return;
+      }
+
+      const now = Date.now();
+      const pings = Array.isArray(gameState.pings) ? gameState.pings : [];
+      const matching = pings
+        .filter(p =>
+          p &&
+          p.sessionId === gameState.sessionId &&
+          Number(p.toBracelet) === Number(player.bracelet) &&
+          Number(p.fromBracelet) !== Number(player.bracelet) &&
+          !dismissedPingIds.has(p.id) &&
+          (now - (p.createdAt || 0)) < 120000
+        )
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      if (matching.length > 0) {
+        currentIncomingPing = matching[0];
+        document.getElementById('pingFromLabel').textContent = `BRACCIALE #${currentIncomingPing.fromBracelet} • ${currentIncomingPing.fromNick}`;
+        document.getElementById('pingMessageLabel').textContent = currentIncomingPing.message;
+        banner.classList.remove('hidden');
+        dot.classList.remove('hidden');
+        if (lastVibratedPingId !== currentIncomingPing.id) {
+          lastVibratedPingId = currentIncomingPing.id;
+          triggerVibrate([90, 50, 90]);
+        }
+      } else {
+        currentIncomingPing = null;
+        banner.classList.add('hidden');
+        dot.classList.add('hidden');
+      }
+    }
+
+    function renderVibePanel() {
+      const panel = document.getElementById('vibePanel');
+      const radarBtn = document.getElementById('toggleVibeRadarBtn');
+      radarBtn.textContent = vibeRadarEnabled ? 'Radar: Attivo' : 'Radar: Pausa';
+      if (!isVibeOpen) {
+        panel.classList.add('hidden');
+        return;
+      }
+      panel.classList.remove('hidden');
+
+      const quickWrap = document.getElementById('activePlayersQuickList');
+      const seen = new Map();
+      (gameState.voteLogs || []).forEach(item => {
+        if (item && Number(item.bracelet) !== Number(player.bracelet)) {
+          seen.set(Number(item.bracelet), item.nick);
+        }
+      });
+      const entries = Array.from(seen.entries()).slice(0, 6);
+      if (entries.length === 0) {
+        quickWrap.innerHTML = '';
+      } else {
+        quickWrap.innerHTML = entries.map(([bNum, nick]) =>
+          `<button type="button" class="active-pill-chip" data-target="${bNum}">#${bNum} ${nick}</button>`
+        ).join('');
+        quickWrap.querySelectorAll('.active-pill-chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            document.getElementById('targetBraceletInput').value = chip.dataset.target;
+          });
+        });
+      }
+    }
+
+    async function sendVibePhrase(targetBraceletNum, phrase) {
+      if (!isValidPlayerIdentity(player, gameState.sessionId)) {
+        clearStoredPlayer();
+        renderAll();
+        return;
+      }
+      const fb = document.getElementById('vibeFeedback');
+      const toB = parseInt(targetBraceletNum, 10);
+      if (!toB || toB < 1 || toB > 100) {
+        fb.textContent = 'Inserisci un numero di bracciale valido (1 - 100).';
+        fb.style.color = '#fca5a5';
+        return;
+      }
+      if (toB === Number(player.bracelet)) {
+        fb.textContent = 'Non puoi mandare un Vibe al tuo stesso bracciale.';
+        fb.style.color = '#fca5a5';
+        return;
+      }
+      if (!VIBE_PHRASES.includes(phrase)) return;
+
+      await pullState();
+
+      const now = Date.now();
+      gameState.pings = (Array.isArray(gameState.pings) ? gameState.pings : [])
+        .filter(p => p && (now - (p.createdAt || 0)) < 300000);
+
+      const recentFromMe = gameState.pings.filter(
+        p => Number(p.fromBracelet) === Number(player.bracelet) && (now - (p.createdAt || 0)) < 120000
+      );
+      if (recentFromMe.length >= 4) {
+        fb.textContent = 'Hai già inviato diversi Vibe negli ultimi 2 minuti. Attendi un attimo!';
+        fb.style.color = '#fde047';
+        return;
+      }
+
+      gameState.pings.push({
+        id: 'ping_' + now + '_' + Math.random().toString(36).slice(2, 6),
+        sessionId: gameState.sessionId,
+        fromBracelet: Number(player.bracelet),
+        fromNick: player.nick,
+        toBracelet: toB,
+        message: phrase,
+        createdAt: now
+      });
+
+      triggerVibrate(30);
+      await pushState();
+      fb.textContent = `Vibe inviato a Bracciale #${toB}!`;
+      fb.style.color = '#6ee7b7';
     }
 
     function drawWheel() {
@@ -1353,6 +1660,9 @@
       playerView.classList.remove('hidden');
       document.getElementById('playerIdentity').textContent = `Bracciale #${player.bracelet} • ${player.nick}`;
       document.getElementById('playerRoundPill').textContent = `ROUND ${gameState.round} / 4`;
+
+      syncIncomingPings();
+      renderVibePanel();
 
       const sWait = document.getElementById('stateWaiting');
       const sVote = document.getElementById('stateVoting');
@@ -1558,6 +1868,38 @@
       renderAll();
     });
 
+    document.getElementById('toggleVibeBtn').addEventListener('click', () => {
+      isVibeOpen = !isVibeOpen;
+      renderVibePanel();
+    });
+
+    document.getElementById('toggleVibeRadarBtn').addEventListener('click', () => {
+      vibeRadarEnabled = !vibeRadarEnabled;
+      renderAll();
+    });
+
+    document.querySelectorAll('.vibe-phrase-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetVal = document.getElementById('targetBraceletInput').value;
+        sendVibePhrase(targetVal, btn.dataset.phrase);
+      });
+    });
+
+    document.getElementById('dismissPingBtn').addEventListener('click', () => {
+      if (currentIncomingPing) {
+        dismissedPingIds.add(currentIncomingPing.id);
+        syncIncomingPings();
+      }
+    });
+
+    document.getElementById('replyPingBtn').addEventListener('click', async () => {
+      if (!currentIncomingPing) return;
+      const senderBracelet = currentIncomingPing.fromBracelet;
+      dismissedPingIds.add(currentIncomingPing.id);
+      syncIncomingPings();
+      await sendVibePhrase(senderBracelet, VIBE_PHRASES[0]);
+    });
+
     document.querySelectorAll('.vote-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         if (!isValidPlayerIdentity(player, gameState.sessionId)) {
@@ -1707,12 +2049,15 @@
         duration: 45,
         votes: { red: 0, blue: 0, green: 0, yellow: 0 },
         voteLogs: [],
+        pings: [],
         verdictColor: 'red',
         prizesClaimed: [false, false, false, false, false],
         winners: [],
         updatedAt: Date.now()
       };
       clearStoredPlayer();
+      dismissedPingIds.clear();
+      lastVibratedPingId = '';
       lastAnnouncedVoteKey = '';
       lastAnnouncedDuration = 0;
       lastAnnouncedVerdictKey = '';
@@ -1723,8 +2068,11 @@
     document.getElementById('closeGameBtn').addEventListener('click', async () => {
       if (!confirm('Vuoi chiudere definitivamente il gioco per questa serata?')) return;
       gameState.sessionId = createSessionId();
+      gameState.pings = [];
       gameState.phase = 'ended';
       clearStoredPlayer();
+      dismissedPingIds.clear();
+      lastVibratedPingId = '';
       await pushState();
       isMasterOpen = false;
       isPinModalOpen = false;
