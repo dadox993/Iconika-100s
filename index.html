@@ -1109,7 +1109,7 @@
           <button id="toggleVibeRadarBtn" class="btn-master-toggle" style="font-size:11px; padding:4px 8px;">Radar: Attivo</button>
         </div>
 
-        <label for="targetBraceletInput">Bracciale destinatario (1 - 100)</label>
+        <label for="targetBraceletInput">Bracciale destinatario in serata (1 - 100)</label>
         <input id="targetBraceletInput" type="number" min="1" max="100" placeholder="Es. 14" style="margin-bottom:8px;" />
 
         <div id="activePlayersQuickList" class="active-pills"></div>
@@ -1120,7 +1120,7 @@
           <button class="vibe-phrase-btn" data-phrase="Che ne dici di una pausa sigaretta? 🚬">Che ne dici di una pausa sigaretta? 🚬</button>
         </div>
 
-        <p id="vibeFeedback" style="font-size:12px; color:#94a3b8; margin:8px 0 0; text-align:center;">Seleziona un bracciale e tocca una frase.</p>
+        <p id="vibeFeedback" style="font-size:12px; color:#94a3b8; margin:8px 0 0; text-align:center;">Seleziona un bracciale già in serata e tocca una frase.</p>
       </div>
 
       <div id="missionsPanel" class="missions-panel hidden">
@@ -1322,7 +1322,7 @@
   </main>
 
   <script>
-    const BUILD_TAG = 'v4_2026_11_26';
+    const BUILD_TAG = 'v5_2026_11_26';
     const GENRES = {
       red: { name: 'ROSSO', genre: 'TECHNO HOUSE', hex: '#ef4444', bg: 'linear-gradient(145deg, #ef4444, #991b1b)' },
       blue: { name: 'BLU', genre: 'REGGAETON', hex: '#3b82f6', bg: 'linear-gradient(145deg, #3b82f6, #1e3a8a)' },
@@ -1364,8 +1364,8 @@
     const STAFF_PIN = '2026';
     const DEFAULT_DB_URL = 'https://iconika-100s-default-rtdb.europe-west1.firebasedatabase.app';
 
-    const STORAGE_KEY = 'iconika_100s_state_v4';
-    const PLAYER_KEY = 'iconika_100s_player_v4';
+    const STORAGE_KEY = 'iconika_100s_state_v5';
+    const PLAYER_KEY = 'iconika_100s_player_v5';
     const DB_KEY = 'iconika_100s_db_url';
 
     function isValidStaffPin(enteredPin) {
@@ -1396,6 +1396,7 @@
       round: 1,
       endTime: 0,
       duration: 45,
+      activePlayers: [],
       votes: { red: 0, blue: 0, green: 0, yellow: 0 },
       voteLogs: [],
       pings: [],
@@ -1435,6 +1436,24 @@
       if (navigator.vibrate) {
         try { navigator.vibrate(pattern); } catch (e) {}
       }
+    }
+
+    function getSessionActivePlayers() {
+      const list = Array.isArray(gameState.activePlayers) ? gameState.activePlayers : [];
+      return list.filter(item =>
+        item &&
+        item.sessionId === gameState.sessionId &&
+        Number.isInteger(Number(item.bracelet)) &&
+        Number(item.bracelet) >= 1 &&
+        Number(item.bracelet) <= 100 &&
+        typeof item.nick === 'string' &&
+        item.nick.trim().length > 0
+      );
+    }
+
+    function findActivePlayerByBracelet(braceletNum) {
+      const target = Number(braceletNum);
+      return getSessionActivePlayers().find(item => Number(item.bracelet) === target) || null;
     }
 
     function drawIconikaLogo(canvas) {
@@ -1563,6 +1582,7 @@
         };
 
         const privatePayload = {
+          activePlayers: getSessionActivePlayers(),
           votes: gameState.votes || { red: 0, blue: 0, green: 0, yellow: 0 },
           voteLogs: gameState.voteLogs || [],
           pings: gameState.pings || [],
@@ -1603,6 +1623,7 @@
           if (pubData && pubData.phase) {
             gameState = Object.assign({}, gameState, pubData, privData || {});
             if (!gameState.sessionId) gameState.sessionId = createSessionId();
+            gameState.activePlayers = getSessionActivePlayers();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
             renderAll();
           }
@@ -1612,6 +1633,7 @@
         if (local && local.updatedAt !== gameState.updatedAt) {
           gameState = Object.assign({}, gameState, local);
           if (!gameState.sessionId) gameState.sessionId = createSessionId();
+          gameState.activePlayers = getSessionActivePlayers();
           renderAll();
         }
       }
@@ -1819,25 +1841,19 @@
       document.getElementById('toggleVibeBtn').classList.toggle('active', isVibeOpen);
       const radarBtn = document.getElementById('toggleVibeRadarBtn');
       radarBtn.textContent = vibeRadarEnabled ? 'Radar: Attivo' : 'Radar: Pausa';
-      if (!isVibeOpen) {
+      if (!isVibeOpen || !player) {
         panel.classList.add('hidden');
         return;
       }
       panel.classList.remove('hidden');
 
       const quickWrap = document.getElementById('activePlayersQuickList');
-      const seen = new Map();
-      (gameState.voteLogs || []).forEach(item => {
-        if (item && Number(item.bracelet) !== Number(player.bracelet)) {
-          seen.set(Number(item.bracelet), item.nick);
-        }
-      });
-      const entries = Array.from(seen.entries()).slice(0, 6);
-      if (entries.length === 0) {
-        quickWrap.innerHTML = '';
+      const others = getSessionActivePlayers().filter(p => Number(p.bracelet) !== Number(player.bracelet));
+      if (others.length === 0) {
+        quickWrap.innerHTML = '<span style="font-size:11px; color:#94a3b8;">Nessun altro bracciale loggato al momento.</span>';
       } else {
-        quickWrap.innerHTML = entries.map(([bNum, nick]) =>
-          `<button type="button" class="active-pill-chip" data-target="${bNum}">#${bNum} ${nick}</button>`
+        quickWrap.innerHTML = others.slice(-8).map(item =>
+          `<button type="button" class="active-pill-chip" data-target="${Number(item.bracelet)}">#${Number(item.bracelet)} ${item.nick}</button>`
         ).join('');
         quickWrap.querySelectorAll('.active-pill-chip').forEach(chip => {
           chip.addEventListener('click', () => {
@@ -1869,6 +1885,13 @@
 
       await pullState();
 
+      const recipient = findActivePlayerByBracelet(toB);
+      if (!recipient) {
+        fb.textContent = `Il bracciale #${toB} non ha effettuato il login e non è in serata.`;
+        fb.style.color = '#fca5a5';
+        return;
+      }
+
       const now = Date.now();
       gameState.pings = (Array.isArray(gameState.pings) ? gameState.pings : [])
         .filter(p => p && (now - (p.createdAt || 0)) < 300000);
@@ -1898,7 +1921,7 @@
       triggerVibrate(30);
       await pushState();
       await checkAndClaimMissionWinner();
-      fb.textContent = `Vibe inviato a Bracciale #${toB}!`;
+      fb.textContent = `Vibe inviato a Bracciale #${toB} (${recipient.nick})!`;
       fb.style.color = '#6ee7b7';
     }
 
@@ -2297,7 +2320,23 @@
         alert('Inserisci il tuo nome o nickname.');
         return;
       }
+
       await pullState();
+
+      const existing = findActivePlayerByBracelet(b);
+      if (existing) {
+        alert(`Il bracciale #${b} è già stato registrato in questa serata da ${existing.nick}. Inserisci il numero del tuo bracciale veritiero.`);
+        return;
+      }
+
+      gameState.activePlayers = getSessionActivePlayers();
+      gameState.activePlayers.push({
+        sessionId: gameState.sessionId,
+        bracelet: b,
+        nick: n,
+        joinedAt: Date.now()
+      });
+
       player = {
         sessionId: gameState.sessionId,
         bracelet: b,
@@ -2310,7 +2349,7 @@
         redeemed: false
       };
       localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
-      renderAll();
+      await pushState();
     });
 
     document.getElementById('toggleVibeBtn').addEventListener('click', () => {
@@ -2513,6 +2552,7 @@
         round: 1,
         endTime: 0,
         duration: 45,
+        activePlayers: [],
         votes: { red: 0, blue: 0, green: 0, yellow: 0 },
         voteLogs: [],
         pings: [],
@@ -2535,6 +2575,7 @@
     document.getElementById('closeGameBtn').addEventListener('click', async () => {
       if (!confirm('Vuoi chiudere definitivamente il gioco per questa serata?')) return;
       gameState.sessionId = createSessionId();
+      gameState.activePlayers = [];
       gameState.pings = [];
       gameState.phase = 'ended';
       clearStoredPlayer();
