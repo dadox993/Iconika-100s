@@ -34,6 +34,21 @@
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      transition: background 0.4s ease;
+    }
+
+    body.verdict-glow-red { background: #dc2626; }
+    body.verdict-glow-blue { background: #2563eb; }
+    body.verdict-glow-green { background: #059669; }
+    body.verdict-glow-yellow { background: #eab308; }
+
+    body.verdict-pulse {
+      animation: crowdPulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes crowdPulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.38); }
     }
 
     .topbar {
@@ -136,12 +151,8 @@
     }
 
     @media (max-width: 390px) {
-      .badge-ep {
-        display: none;
-      }
-      .live-text {
-        display: none;
-      }
+      .badge-ep { display: none; }
+      .live-text { display: none; }
     }
 
     .container {
@@ -426,9 +437,11 @@
 
     .verdict-card {
       text-align: center;
-      padding: 28px 18px;
+      padding: 26px 18px;
       border-radius: 20px;
       color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
     }
 
     .verdict-badge {
@@ -447,6 +460,38 @@
       font-weight: 900;
       margin: 4px 0 8px;
       text-transform: uppercase;
+    }
+
+    .raise-phone-box {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+    }
+
+    .raise-phone-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .raise-phone-note {
+      font-size: 11px;
+      opacity: 0.9;
+      margin: 0 0 10px;
+    }
+
+    .btn-light-toggle {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
     }
 
     .wheel-wrap {
@@ -761,7 +806,13 @@
           <div class="verdict-badge">VERDETTO DEL MASTER</div>
           <div id="verdictColorLabel" style="font-size:14px; font-weight:800; opacity:0.9;">VINCE IL ROSSO</div>
           <div id="verdictGenreLabel" class="verdict-title">TECHNO HOUSE</div>
-          <p style="margin:0; font-size:13px; opacity:0.92;">Luci, sound e animazione cambiano adesso!</p>
+          <p style="margin:0; font-size:13px; opacity:0.95;">Luci, sound e animazione cambiano adesso!</p>
+
+          <div class="raise-phone-box">
+            <div class="raise-phone-title">📱 ALZA IL TELEFONO IN PISTA!</div>
+            <p class="raise-phone-note">Illumina la pista col colore vincente (non puntare lo schermo negli occhi).</p>
+            <button id="toggleCrowdLightBtn" class="btn-light-toggle">Spegni effetto luce</button>
+          </div>
         </div>
       </div>
 
@@ -885,10 +936,10 @@
 
   <script>
     const GENRES = {
-      red: { name: 'ROSSO', genre: 'TECHNO HOUSE', hex: '#ef4444', bg: 'linear-gradient(145deg, #dc2626, #7f1d1d)' },
-      blue: { name: 'BLU', genre: 'REGGAETON', hex: '#3b82f6', bg: 'linear-gradient(145deg, #2563eb, #1e3a8a)' },
-      green: { name: 'VERDE', genre: 'COMMERCIAL', hex: '#10b981', bg: 'linear-gradient(145deg, #059669, #064e3b)' },
-      yellow: { name: 'GIALLO', genre: 'STRAPOP', hex: '#eab308', bg: 'linear-gradient(145deg, #d97706, #78350f)' }
+      red: { name: 'ROSSO', genre: 'TECHNO HOUSE', hex: '#ef4444', bg: 'linear-gradient(145deg, #ef4444, #991b1b)' },
+      blue: { name: 'BLU', genre: 'REGGAETON', hex: '#3b82f6', bg: 'linear-gradient(145deg, #3b82f6, #1e3a8a)' },
+      green: { name: 'VERDE', genre: 'COMMERCIAL', hex: '#10b981', bg: 'linear-gradient(145deg, #10b981, #064e3b)' },
+      yellow: { name: 'GIALLO', genre: 'STRAPOP', hex: '#eab308', bg: 'linear-gradient(145deg, #eab308, #854d0e)' }
     };
 
     const PRIZES = [
@@ -929,6 +980,16 @@
     let isPinModalOpen = false;
     let isSpinning = false;
     let wheelAngle = 0;
+    let crowdLightEnabled = true;
+    let lastAnnouncedVoteKey = '';
+    let lastAnnouncedDuration = 0;
+    let lastAnnouncedVerdictKey = '';
+
+    function triggerVibrate(pattern) {
+      if (navigator.vibrate) {
+        try { navigator.vibrate(pattern); } catch (e) {}
+      }
+    }
 
     function drawIconikaLogo(canvas) {
       if (!canvas) return;
@@ -1182,6 +1243,16 @@
       }, 4300);
     }
 
+    function clearCrowdLightClasses() {
+      document.body.classList.remove(
+        'verdict-glow-red',
+        'verdict-glow-blue',
+        'verdict-glow-green',
+        'verdict-glow-yellow',
+        'verdict-pulse'
+      );
+    }
+
     function renderAll() {
       const livePill = document.getElementById('liveIndicator');
       const liveText = document.getElementById('liveText');
@@ -1192,6 +1263,8 @@
         livePill.classList.remove('connected');
         liveText.textContent = 'LOCALE';
       }
+
+      clearCrowdLightClasses();
 
       const endedView = document.getElementById('endedView');
       const checkinView = document.getElementById('checkinView');
@@ -1241,9 +1314,21 @@
       sWheel.classList.add('hidden');
 
       if (gameState.phase === 'waiting') {
+        lastAnnouncedVoteKey = '';
+        lastAnnouncedDuration = 0;
         sWait.classList.remove('hidden');
       } else if (gameState.phase === 'voting') {
         sVote.classList.remove('hidden');
+        const voteSessionKey = `${gameState.round}_${gameState.endTime - (gameState.duration || 45) * 1000}`;
+        if (lastAnnouncedVoteKey !== voteSessionKey) {
+          lastAnnouncedVoteKey = voteSessionKey;
+          lastAnnouncedDuration = gameState.duration || 45;
+          triggerVibrate([150, 70, 150]);
+        } else if ((gameState.duration || 45) > lastAnnouncedDuration) {
+          lastAnnouncedDuration = gameState.duration || 45;
+          triggerVibrate(80);
+        }
+
         const myVote = player.votes && player.votes[gameState.round];
         document.querySelectorAll('.vote-btn').forEach(btn => {
           const c = btn.dataset.color;
@@ -1258,10 +1343,27 @@
           : 'Tocca un colore per inviare il tuo voto.';
       } else if (gameState.phase === 'verdict') {
         sVerd.classList.remove('hidden');
-        const info = GENRES[gameState.verdictColor] || GENRES.red;
+        const colorKey = GENRES[gameState.verdictColor] ? gameState.verdictColor : 'red';
+        const info = GENRES[colorKey];
+        const verdictKey = `${gameState.round}_${colorKey}`;
+
+        if (lastAnnouncedVerdictKey !== verdictKey) {
+          lastAnnouncedVerdictKey = verdictKey;
+          crowdLightEnabled = true;
+          triggerVibrate([120, 60, 180]);
+        }
+
         document.getElementById('verdictBox').style.background = info.bg;
         document.getElementById('verdictColorLabel').textContent = `VINCE IL ${info.name}`;
         document.getElementById('verdictGenreLabel').textContent = info.genre;
+
+        const lightBtn = document.getElementById('toggleCrowdLightBtn');
+        if (crowdLightEnabled) {
+          document.body.classList.add(`verdict-glow-${colorKey}`, 'verdict-pulse');
+          lightBtn.textContent = 'Spegni effetto luce';
+        } else {
+          lightBtn.textContent = 'Riaccendi effetto luce';
+        }
       } else if (gameState.phase === 'wheel') {
         sWheel.classList.remove('hidden');
         const gameArea = document.getElementById('wheelGameArea');
@@ -1403,9 +1505,16 @@
         gameState.votes[color] = (gameState.votes[color] || 0) + 1;
         player.votes[gameState.round] = color;
 
+        triggerVibrate(25);
+
         localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
         await pushState();
       });
+    });
+
+    document.getElementById('toggleCrowdLightBtn').addEventListener('click', () => {
+      crowdLightEnabled = !crowdLightEnabled;
+      renderAll();
     });
 
     document.getElementById('spinBtn').addEventListener('click', spinWheel);
@@ -1513,6 +1622,9 @@
       };
       localStorage.removeItem(PLAYER_KEY);
       player = null;
+      lastAnnouncedVoteKey = '';
+      lastAnnouncedDuration = 0;
+      lastAnnouncedVerdictKey = '';
       await pushState();
       alert('Serata resettata con successo.');
     });
