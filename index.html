@@ -126,6 +126,15 @@
       box-shadow: 0 0 8px #10b981;
     }
 
+    .live-pill.error {
+      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.18);
+    }
+
+    .live-pill.error .live-dot {
+      background: #ef4444;
+    }
+
     .btn-master-toggle {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -1236,6 +1245,7 @@
       </div>
 
       <div id="masterStatusBanner" class="status-banner">Stato: In attesa • Round 1</div>
+      <div id="syncDiagText" style="font-size:11px; color:#94a3b8; text-align:center; margin-bottom:10px;">Stato cloud in attesa di verifica...</div>
 
       <div class="master-section" style="border-top:none; padding-top:0; margin-top:0;">
         <h3>1. Gestione Round & Voto</h3>
@@ -1322,7 +1332,7 @@
   </main>
 
   <script>
-    const BUILD_TAG = 'v5_2026_11_26';
+    const BUILD_TAG = 'v6_2026_11_26_ios_fix';
     const GENRES = {
       red: { name: 'ROSSO', genre: 'TECHNO HOUSE', hex: '#ef4444', bg: 'linear-gradient(145deg, #ef4444, #991b1b)' },
       blue: { name: 'BLU', genre: 'REGGAETON', hex: '#3b82f6', bg: 'linear-gradient(145deg, #3b82f6, #1e3a8a)' },
@@ -1364,8 +1374,8 @@
     const STAFF_PIN = '2026';
     const DEFAULT_DB_URL = 'https://iconika-100s-default-rtdb.europe-west1.firebasedatabase.app';
 
-    const STORAGE_KEY = 'iconika_100s_state_v5';
-    const PLAYER_KEY = 'iconika_100s_player_v5';
+    const STORAGE_KEY = 'iconika_100s_state_v6';
+    const PLAYER_KEY = 'iconika_100s_player_v6';
     const DB_KEY = 'iconika_100s_db_url';
 
     function isValidStaffPin(enteredPin) {
@@ -1417,6 +1427,7 @@
       localStorage.setItem(DB_KEY, dbUrl);
     }
 
+    let cloudErrorMsg = '';
     let isMasterOpen = false;
     let isPinModalOpen = false;
     let isVibeOpen = false;
@@ -1593,19 +1604,30 @@
         };
 
         try {
-          await Promise.all([
+          const [pubResp, privResp] = await Promise.all([
             fetch(`${dbUrl}/publicState.json`, {
               method: 'PUT',
+              cache: 'no-store',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(publicPayload)
             }),
             fetch(`${dbUrl}/privateData.json`, {
               method: 'PUT',
+              cache: 'no-store',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(privatePayload)
             })
           ]);
-        } catch (e) {}
+
+          if (!pubResp.ok || !privResp.ok) {
+            cloudErrorMsg = `Errore scrittura Firebase (${pubResp.status}/${privResp.status}) — controlla le Regole del database.`;
+          } else {
+            cloudErrorMsg = '';
+          }
+        } catch (e) {
+          cloudErrorMsg = 'Connessione cloud non riuscita durante il salvataggio.';
+        }
+        renderAll();
       }
     }
 
@@ -1613,21 +1635,34 @@
       if (dbUrl) {
         try {
           const [pubRes, privRes] = await Promise.all([
-            fetch(`${dbUrl}/publicState.json?t=${Date.now()}`),
-            fetch(`${dbUrl}/privateData.json?t=${Date.now()}`)
+            fetch(`${dbUrl}/publicState.json?t=${Date.now()}`, { cache: 'no-store' }),
+            fetch(`${dbUrl}/privateData.json?t=${Date.now()}`, { cache: 'no-store' })
           ]);
 
-          const pubData = pubRes.ok ? await pubRes.json() : null;
+          if (!pubRes.ok) {
+            cloudErrorMsg = `Errore lettura Firebase (${pubRes.status}) — controlla le Regole del database.`;
+            renderAll();
+            return;
+          }
+
+          const pubData = await pubRes.json();
           const privData = privRes.ok ? await privRes.json() : null;
 
           if (pubData && pubData.phase) {
+            cloudErrorMsg = '';
             gameState = Object.assign({}, gameState, pubData, privData || {});
             if (!gameState.sessionId) gameState.sessionId = createSessionId();
             gameState.activePlayers = getSessionActivePlayers();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
             renderAll();
+          } else {
+            cloudErrorMsg = 'Database connesso ma senza stato attivo: premi "Metti in Attesa" o "Apri Voto" in Regia.';
+            renderAll();
           }
-        } catch (e) {}
+        } catch (e) {
+          cloudErrorMsg = 'Impossibile raggiungere il database live.';
+          renderAll();
+        }
       } else {
         const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
         if (local && local.updatedAt !== gameState.updatedAt) {
@@ -2063,11 +2098,14 @@
 
       const livePill = document.getElementById('liveIndicator');
       const liveText = document.getElementById('liveText');
-      if (dbUrl) {
+      livePill.classList.remove('connected', 'error');
+      if (cloudErrorMsg) {
+        livePill.classList.add('error');
+        liveText.textContent = 'ERR CLOUD';
+      } else if (dbUrl) {
         livePill.classList.add('connected');
         liveText.textContent = 'LIVE CLOUD';
       } else {
-        livePill.classList.remove('connected');
         liveText.textContent = 'LOCALE';
       }
 
@@ -2206,6 +2244,18 @@
     }
 
     function renderMaster() {
+      const diagEl = document.getElementById('syncDiagText');
+      if (diagEl) {
+        if (cloudErrorMsg) {
+          diagEl.textContent = cloudErrorMsg;
+          diagEl.style.color = '#fca5a5';
+        } else {
+          const activeCount = getSessionActivePlayers().length;
+          diagEl.textContent = `Cloud attivo • Sessione ${gameState.sessionId.slice(-6)} • ${activeCount} bracciali loggati`;
+          diagEl.style.color = '#6ee7b7';
+        }
+      }
+
       document.querySelectorAll('.r-btn').forEach(b => {
         b.classList.toggle('active', Number(b.dataset.r) === gameState.round);
       });
