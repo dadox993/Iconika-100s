@@ -644,6 +644,29 @@
       background: rgba(255,255,255,0.04);
       font-size: 12px;
       margin-bottom: 6px;
+      gap: 8px;
+    }
+
+    .log-box {
+      max-height: 160px;
+      overflow-y: auto;
+      background: #0b0b12;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .log-row {
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .log-row:last-child {
+      border-bottom: none;
     }
 
     .status-banner {
@@ -905,6 +928,11 @@
           <div class="stat-label"><span>Giallo • Strapop</span><span id="cnt-yellow">0</span></div>
           <div class="stat-track"><div id="bar-yellow" class="stat-fill" style="background:var(--yellow);"></div></div>
         </div>
+
+        <label style="margin-top:10px;">Ultimi Voti Registrati (Bracciale + Nickname)</label>
+        <div id="voteLogsList" class="log-box">
+          <div class="log-row"><span style="color:var(--muted);">Nessun voto registrato ancora</span></div>
+        </div>
       </div>
 
       <div class="master-section">
@@ -957,19 +985,30 @@
     const PLAYER_KEY = 'iconika_100s_player_v3';
     const DB_KEY = 'iconika_100s_db_url';
 
+    function isValidPlayerIdentity(p) {
+      if (!p || typeof p !== 'object') return false;
+      const b = Number(p.bracelet);
+      const n = typeof p.nick === 'string' ? p.nick.trim() : '';
+      return Number.isInteger(b) && b >= 1 && b <= 100 && n.length > 0;
+    }
+
     let gameState = {
       phase: 'waiting',
       round: 1,
       endTime: 0,
       duration: 45,
       votes: { red: 0, blue: 0, green: 0, yellow: 0 },
+      voteLogs: [],
       verdictColor: 'red',
       prizesClaimed: [false, false, false, false, false],
       winners: [],
       updatedAt: Date.now()
     };
 
-    let player = JSON.parse(localStorage.getItem(PLAYER_KEY) || 'null');
+    let rawPlayer = JSON.parse(localStorage.getItem(PLAYER_KEY) || 'null');
+    let player = isValidPlayerIdentity(rawPlayer) ? rawPlayer : null;
+    if (!player) localStorage.removeItem(PLAYER_KEY);
+
     let dbUrl = new URLSearchParams(window.location.search).get('db') || localStorage.getItem(DB_KEY) || DEFAULT_DB_URL;
     if (dbUrl) {
       dbUrl = dbUrl.replace(/\/+$/, '');
@@ -1191,7 +1230,14 @@
     }
 
     async function spinWheel() {
-      if (!player || player.hasSpun || isSpinning) return;
+      if (!isValidPlayerIdentity(player) || player.hasSpun || isSpinning) {
+        if (!isValidPlayerIdentity(player)) {
+          player = null;
+          localStorage.removeItem(PLAYER_KEY);
+          renderAll();
+        }
+        return;
+      }
       isSpinning = true;
       document.getElementById('spinBtn').disabled = true;
 
@@ -1254,6 +1300,11 @@
     }
 
     function renderAll() {
+      if (player && !isValidPlayerIdentity(player)) {
+        player = null;
+        localStorage.removeItem(PLAYER_KEY);
+      }
+
       const livePill = document.getElementById('liveIndicator');
       const liveText = document.getElementById('liveText');
       if (dbUrl) {
@@ -1294,7 +1345,7 @@
         return;
       }
 
-      if (!player) {
+      if (!isValidPlayerIdentity(player)) {
         checkinView.classList.remove('hidden');
         return;
       }
@@ -1405,13 +1456,26 @@
         document.getElementById(`bar-${c}`).style.width = `${Math.round(((v[c] || 0) / total) * 100)}%`;
       });
 
+      const logsEl = document.getElementById('voteLogsList');
+      const logs = Array.isArray(gameState.voteLogs) ? gameState.voteLogs : [];
+      if (logs.length === 0) {
+        logsEl.innerHTML = '<div class="log-row"><span style="color:var(--muted);">Nessun voto registrato ancora</span></div>';
+      } else {
+        logsEl.innerHTML = logs.slice(-20).reverse().map(item => {
+          const g = GENRES[item.color] || GENRES.red;
+          return `<div class="log-row"><span><strong>#${item.bracelet}</strong> ${item.nick} (R${item.round})</span><span style="color:${g.hex}; font-weight:800;">${g.name}</span></div>`;
+        }).join('');
+      }
+
       const pList = document.getElementById('prizesList');
       pList.innerHTML = '';
       PRIZES.forEach((pName, idx) => {
         const claimed = gameState.prizesClaimed && gameState.prizesClaimed[idx];
+        const winner = (gameState.winners || []).find(w => w.prize === pName);
         const row = document.createElement('div');
         row.className = 'prize-chip';
-        row.innerHTML = `<span>${idx + 1}. ${pName}</span><strong style="color:${claimed ? '#f87171' : '#6ee7b7'}">${claimed ? 'ASSEGNATO' : 'DISPONIBILE'}</strong>`;
+        const winnerTag = winner ? ` (#${winner.bracelet} ${winner.nick})` : '';
+        row.innerHTML = `<span>${idx + 1}. ${pName}${winnerTag}</span><strong style="color:${claimed ? '#f87171' : '#6ee7b7'}">${claimed ? 'ASSEGNATO' : 'DISPONIBILE'}</strong>`;
         pList.appendChild(row);
       });
 
@@ -1495,7 +1559,14 @@
 
     document.querySelectorAll('.vote-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if (gameState.phase !== 'voting' || !player) return;
+        if (!isValidPlayerIdentity(player)) {
+          player = null;
+          localStorage.removeItem(PLAYER_KEY);
+          renderAll();
+          alert('Prima inserisci numero bracciale (1-100) e nickname.');
+          return;
+        }
+        if (gameState.phase !== 'voting') return;
         const color = btn.dataset.color;
         player.votes = player.votes || {};
         const prev = player.votes[gameState.round];
@@ -1504,6 +1575,17 @@
         if (prev && gameState.votes[prev] > 0) gameState.votes[prev]--;
         gameState.votes[color] = (gameState.votes[color] || 0) + 1;
         player.votes[gameState.round] = color;
+
+        gameState.voteLogs = Array.isArray(gameState.voteLogs) ? gameState.voteLogs : [];
+        gameState.voteLogs = gameState.voteLogs.filter(
+          item => !(item.bracelet === player.bracelet && item.round === gameState.round)
+        );
+        gameState.voteLogs.push({
+          bracelet: player.bracelet,
+          nick: player.nick,
+          round: gameState.round,
+          color: color
+        });
 
         triggerVibrate(25);
 
@@ -1520,7 +1602,7 @@
     document.getElementById('spinBtn').addEventListener('click', spinWheel);
 
     document.getElementById('redeemBtn').addEventListener('click', () => {
-      if (!player) return;
+      if (!isValidPlayerIdentity(player)) return;
       if (confirm('Confermi il ritiro del premio da parte dello staff?')) {
         player.redeemed = true;
         localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
@@ -1595,9 +1677,17 @@
 
     document.getElementById('simulateBtn').addEventListener('click', () => {
       const keys = ['red', 'blue', 'green', 'yellow'];
+      gameState.voteLogs = Array.isArray(gameState.voteLogs) ? gameState.voteLogs : [];
       for (let i = 0; i < 12; i++) {
         const k = keys[Math.floor(Math.random() * keys.length)];
+        const bNum = ((i * 7 + gameState.round * 11) % 100) + 1;
         gameState.votes[k] = (gameState.votes[k] || 0) + 1;
+        gameState.voteLogs.push({
+          bracelet: bNum,
+          nick: `Guest${bNum}`,
+          round: gameState.round,
+          color: k
+        });
       }
       pushState();
     });
@@ -1615,6 +1705,7 @@
         endTime: 0,
         duration: 45,
         votes: { red: 0, blue: 0, green: 0, yellow: 0 },
+        voteLogs: [],
         verdictColor: 'red',
         prizesClaimed: [false, false, false, false, false],
         winners: [],
