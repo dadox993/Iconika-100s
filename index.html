@@ -1322,6 +1322,7 @@
   </main>
 
   <script>
+    const BUILD_TAG = 'v4_2026_11_26';
     const GENRES = {
       red: { name: 'ROSSO', genre: 'TECHNO HOUSE', hex: '#ef4444', bg: 'linear-gradient(145deg, #ef4444, #991b1b)' },
       blue: { name: 'BLU', genre: 'REGGAETON', hex: '#3b82f6', bg: 'linear-gradient(145deg, #3b82f6, #1e3a8a)' },
@@ -1360,27 +1361,16 @@
     ];
 
     const MASTER_PIN = '1000';
-    const STAFF_PIN_HASH = 'f3f3c42954d1b49d85a6f82f7e51d20278b1b11d6b80e628879a8c1db91a3f2f';
+    const STAFF_PIN = '2026';
     const DEFAULT_DB_URL = 'https://iconika-100s-default-rtdb.europe-west1.firebasedatabase.app';
 
-    const STORAGE_KEY = 'iconika_100s_state_v3';
-    const PLAYER_KEY = 'iconika_100s_player_v3';
+    const STORAGE_KEY = 'iconika_100s_state_v4';
+    const PLAYER_KEY = 'iconika_100s_player_v4';
     const DB_KEY = 'iconika_100s_db_url';
 
-    async function sha256Hex(text) {
-      const buf = new TextEncoder().encode(text);
-      const digest = await crypto.subtle.digest('SHA-256', buf);
-      return Array.from(new Uint8Array(digest))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    }
-
-    async function isValidStaffPin(enteredPin) {
+    function isValidStaffPin(enteredPin) {
       if (enteredPin === null) return false;
-      const trimmed = enteredPin.trim();
-      if (!trimmed) return false;
-      const digest = await sha256Hex(trimmed);
-      return digest === STAFF_PIN_HASH;
+      return enteredPin.trim() === STAFF_PIN;
     }
 
     function createSessionId() {
@@ -1551,6 +1541,7 @@
       const cleanPath = window.location.pathname || '/Iconika-100s/';
       const url = new URL(cleanOrigin + cleanPath);
       if (dbUrl) url.searchParams.set('db', dbUrl);
+      url.searchParams.set('v', BUILD_TAG);
       return url.toString();
     }
 
@@ -1757,7 +1748,7 @@
           redeemBtn.addEventListener('click', async () => {
             const enteredPin = prompt('Inserisci il PIN Staff per convalidare la Drink Card:');
             if (enteredPin === null) return;
-            if (!(await isValidStaffPin(enteredPin))) {
+            if (!isValidStaffPin(enteredPin)) {
               alert('PIN Staff non valido.');
               return;
             }
@@ -1999,7 +1990,6 @@
       }
       triggerVibrate([60, 40, 60]);
 
-      // Allinea lo stato remoto in background mentre la ruota gira
       pullState();
 
       setTimeout(async () => {
@@ -2409,11 +2399,11 @@
 
     document.getElementById('spinBtn').addEventListener('click', spinWheel);
 
-    document.getElementById('redeemBtn').addEventListener('click', async () => {
+    document.getElementById('redeemBtn').addEventListener('click', () => {
       if (!isValidPlayerIdentity(player, gameState.sessionId)) return;
       const enteredPin = prompt('Inserisci il PIN Staff per convalidare il ritiro del premio:');
       if (enteredPin === null) return;
-      if (!(await isValidStaffPin(enteredPin))) {
+      if (!isValidStaffPin(enteredPin)) {
         alert('PIN Staff non valido.');
         return;
       }
@@ -2442,7 +2432,7 @@
     });
 
     document.getElementById('confirmPinBtn').addEventListener('click', () => {
-      if (document.getElementById('pinInput').value === MASTER_PIN) {
+      if (document.getElementById('pinInput').value.trim() === MASTER_PIN) {
         isPinModalOpen = false;
         isMasterOpen = true;
         renderAll();
